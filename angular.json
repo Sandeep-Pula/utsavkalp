@@ -86,6 +86,7 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               {
+                
                 "glob": "**/*",
                 "input": "public"
               }
@@ -98,5 +99,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
 }
