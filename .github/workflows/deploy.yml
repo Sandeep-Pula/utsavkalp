@@ -37,7 +37,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/utsavkalp-site   # 👈 EXACT MATCH TO YOUR angular.json
+          path: dist/utsavkalp-site/browser   # 👈 EXACT MATCH TO YOUR angular.json
           
   deploy:
     needs: build
