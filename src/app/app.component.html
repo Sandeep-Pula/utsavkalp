@@ -1,251 +1,29 @@
 <header class="site-header">
-  <div class="nav container">
-    <a href="#home" class="logo">
-      <img src="./logo.png" alt="UtsavKalp Logo" class="logo-img" />
-    </a>
-    
-    
-
-    <nav class="nav-links">
-      <a href="#about">About</a>
-      <a href="#services">Services</a>
-      <a href="#occasions">Occasions</a>
-      <a href="#gallery">Gallery</a>
-      <a href="#contact">Contact</a>
-    </nav>
-
-    <a href="#contact" class="btn btn-primary nav-cta">Plan My Event</a>
-  </div>
-</header>
-
-<main class="container">
-  <!-- HERO -->
-  <section class="hero" id="home">
-    <div class="hero-text">
-      <div class="hero-tagline">Premium Event &amp; Function Management</div>
-      <h1>We Craft Your Celebrations.</h1>
-      <p>
-        UtsavKalp takes care of décor, dining and every detail of your event — so you and your
-        family are free to enjoy the moments that matter.
-      </p>
-
-      <div class="hero-actions">
-        <a href="#contact" class="btn btn-primary">Plan My Event</a>
-        <a href="https://wa.me/91XXXXXXXXXX" class="btn btn-outline">WhatsApp Us</a>
-      </div>
-
-      <div class="hero-pill">
-        Weddings • House Functions • Festivals • Birthdays • Corporate Events
-      </div>
-    </div>
-
-    <div class="hero-image">
-      <!-- replace with a real image later -->
-      <div class="hero-image-placeholder">Your event photo here</div>
-    </div>
-  </section>
-
-  <!-- WHY US -->
-  <section class="section" id="about">
-    <h2>Why Choose UtsavKalp?</h2>
-    <p class="section-subtext">
-      From intimate poojas to grand weddings, our team manages your event end-to-end with a
-      blend of tradition, creativity and professional execution.
-    </p>
-
-    <div class="card-grid">
-      <div class="card">
-        <h3>End-to-End Management</h3>
-        <p>
-          Décor, catering, rituals, entertainment and guest coordination – one dedicated team
-          that handles everything.
-        </p>
-      </div>
-      <div class="card">
-        <h3>Custom Packages</h3>
-        <p>
-          We design packages to suit your budget, venue size and customs while keeping the
-          experience premium.
-        </p>
-      </div>
-      <div class="card">
-        <h3>Tradition + Style</h3>
-        <p>
-          From kalash and mandap to modern backdrops and lighting, we blend cultural elements
-          with contemporary aesthetics.
-        </p>
-      </div>
-      <div class="card">
-        <h3>Reliable Execution</h3>
-        <p>
-          Clear timelines, vetted vendors and on-ground coordinators ensure your Utsav runs
-          smoothly.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- SERVICES -->
-  <section class="section" id="services">
-    <h2>Our Services &amp; Packages</h2>
-
-    <div class="two-col">
-      <div>
-        <p class="section-subtext">
-          Choose complete event management or pick only the services you need. We’ll shape a plan
-          that fits your occasion.
-        </p>
-        <ul class="list">
-          <li>Event planning &amp; day-of coordination</li>
-          <li>Stage, mandap &amp; entrance decoration</li>
-          <li>Flower, lighting &amp; theme styling</li>
-          <li>Catering &amp; live food counters</li>
-          <li>Pooja &amp; ritual arrangements (pandit, samagri, setup)</li>
-          <li>DJ, dhol, live music &amp; anchors</li>
-          <li>Photography &amp; videography</li>
-          <li>Guest welcome, seating &amp; return gifts</li>
-        </ul>
-      </div>
-
-      <div class="package-cards">
-        <div class="card">
-          <h3>Griha Utsav Package</h3>
-          <p>
-            Perfect for housewarming, Satyanarayan pooja, naming ceremony and home functions.
-            Includes décor, seating, pooja setup and simple catering options.
-          </p>
+    <div class="nav container">
+      <a routerLink="/" class="logo">
+        <div class="logo-wrapper">
+          <img src="logo.png" alt="UtsavKalp Logo" class="logo-img" />
         </div>
-        <div class="card">
-          <h3>Signature Vivaah Package</h3>
-          <p>
-            Complete wedding-day management with mandap décor, varmala stage, baraat welcome,
-            catering, rituals coordination and entertainment.
-          </p>
-        </div>
-        <div class="card">
-          <h3>Celebration Plus Package</h3>
-          <p>
-            For birthdays, anniversaries and corporate events – theme décor, cake table, backdrop,
-            music and catering support.
-          </p>
-        </div>
-      </div>
+      </a>
+      
+  
+      <nav class="nav-links">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          Home
+        </a>
+        <a routerLink="/about" routerLinkActive="active">About</a>
+        <a routerLink="/services" routerLinkActive="active">Services</a>
+        <a routerLink="/occasions" routerLinkActive="active">Occasions</a>
+        <a routerLink="/gallery" routerLinkActive="active">Gallery</a>
+        <a routerLink="/contact" routerLinkActive="active">Contact</a>
+      </nav>
+  
+      <a routerLink="/contact" class="btn btn-primary nav-cta">Plan My Event</a>
     </div>
-  </section>
-
-  <!-- OCCASIONS -->
-  <section class="section" id="occasions">
-    <h2>Occasions We Specialize In</h2>
-    <div class="badge-row">
-      <span class="badge">Weddings &amp; Receptions</span>
-      <span class="badge">Engagements &amp; Ring Ceremonies</span>
-      <span class="badge">Haldi, Sangeet &amp; Mehendi</span>
-      <span class="badge">Housewarming (Griha Pravesh)</span>
-      <span class="badge">Naming Ceremony &amp; Annaprashan</span>
-      <span class="badge">Festivals &amp; Special Poojas</span>
-      <span class="badge">Birthdays &amp; Anniversaries</span>
-      <span class="badge">Corporate Events &amp; Family Days</span>
-      <span class="badge">Community &amp; Society Functions</span>
-    </div>
-  </section>
-
-  <!-- GALLERY -->
-  <section class="section" id="gallery">
-    <h2>Glimpses of Our Utsavs</h2>
-    <p class="section-subtext">
-      A quick look at the celebrations we have crafted for our clients.
-    </p>
-    <div class="gallery-grid">
-      <div class="gallery-item"></div>
-      <div class="gallery-item"></div>
-      <div class="gallery-item"></div>
-      <div class="gallery-item"></div>
-      <div class="gallery-item"></div>
-      <div class="gallery-item"></div>
-    </div>
-  </section>
-
-  <!-- TESTIMONIALS -->
-  <section class="section" id="testimonials">
-    <h2>What Our Clients Say</h2>
-    <div class="testimonial">
-      “UtsavKalp handled our wedding like family. Décor, food and coordination were flawless –
-      we could truly enjoy every ritual.”
-      <strong>Rohit &amp; Ananya</strong>
-    </div>
-    <div class="testimonial">
-      “Our griha pravesh looked beautiful and everything was ready on time. Guests still talk
-      about the food and décor.”
-      <strong>Priya S.</strong>
-    </div>
-  </section>
-
-  <!-- CONTACT -->
-  <section class="section" id="contact">
-    <h2>Plan Your Next Utsav</h2>
-    <p class="section-subtext">
-      Share a few details and our team will get back to you with ideas and a customized package.
-    </p>
-
-    <div class="two-col contact-grid">
-      <form class="contact-form">
-        <label>
-          Name
-          <input type="text" placeholder="Your full name" />
-        </label>
-
-        <label>
-          Phone / WhatsApp
-          <input type="tel" placeholder="+91 -" />
-        </label>
-
-        <label>
-          Email (optional)
-          <input type="email" placeholder="you@example.com" />
-        </label>
-
-        <label>
-          Type of Event
-          <select>
-            <option>Wedding / Reception</option>
-            <option>House Function / Pooja</option>
-            <option>Birthday / Anniversary</option>
-            <option>Corporate Event</option>
-            <option>Other</option>
-          </select>
-        </label>
-
-        <label>
-          Event Date
-          <input type="date" />
-        </label>
-
-        <label>
-          Location / City
-          <input type="text" placeholder="City / Area" />
-        </label>
-
-        <label>
-          Event Details / Message
-          <textarea placeholder="Tell us about your event..."></textarea>
-        </label>
-
-        <button type="submit" class="btn btn-primary">
-          Submit Enquiry
-        </button>
-      </form>
-
-      <div class="contact-info">
-        <h3>Contact Details</h3>
-        <p>📞 Call / WhatsApp: <strong>+91-XXXXXXXXXX</strong></p>
-        <p> Email: <strong>{{ 'hello@utsavkalp.com' }}</strong></p>
-        <p>Service Areas:<br />[Your City], nearby towns and outstation events on request.</p>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer class="site-footer">
-  © {{ currentYear }} UtsavKalp. All rights reserved.
-</footer>
-
+  </header>
+  
+  <!-- All pages render here -->
+  <main class="main-container">
+    <router-outlet></router-outlet>
+  </main>
+  

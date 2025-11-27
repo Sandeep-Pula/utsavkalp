@@ -1,0 +1,95 @@
+<section class="services-page">
+    <div class="container">
+  
+      <!-- MAIN GRID (gets blurred when modal is open) -->
+      <section class="services-grid" [class.blurred]="showPackages">
+        <article
+          class="service-card"
+          *ngFor="let service of serviceCategories"
+          (click)="onServiceClick(service)"
+          tabindex="0"
+          (keyup.enter)="onServiceClick(service)"
+        >
+          <div class="service-image-wrapper">
+            <img
+              [src]="service.image"
+              [alt]="service.title"
+              class="service-image"
+            />
+            <span
+              class="service-tag"
+              *ngIf="service.tag"
+            >
+              {{ service.tag }}
+            </span>
+          </div>
+  
+          <div class="service-info">
+            <h2>{{ service.title }}</h2>
+            <p>{{ service.subtitle }}</p>
+            <span class="service-cta">View Packages</span>
+          </div>
+        </article>
+      </section>
+  
+     <!-- BACKDROP -->
+<div
+class="modal-backdrop"
+*ngIf="showPackages"
+(click)="closePackages()"
+></div>
+
+<!-- PACKAGES MODAL -->
+<div
+class="packages-modal"
+*ngIf="showPackages"
+role="dialog"
+aria-modal="true"
+>
+<header class="modal-header">
+  <h2>Wedding & Reception Packages</h2>
+  <button
+    type="button"
+    class="close-btn"
+    (click)="closePackages()"
+    aria-label="Close"
+  >
+    ×
+  </button>
+</header>
+
+<p class="modal-subtitle">
+  Choose the wedding plan that fits your celebration – from a simple 2-day
+  event to a full destination experience.
+</p>
+
+<!-- PRICING CARDS -->
+<div class="pricing-grid">
+  <div
+    class="pricing-card"
+    *ngFor="let pkg of weddingPackages; let i = index"
+    [class.featured]="i === 2">
+ 
+    <div class="pricing-header">
+      <h3>{{ pkg.name }}</h3>
+      <p class="pricing-duration">{{ pkg.duration }}</p>
+    </div>
+
+    <button type="button" class="pricing-cta">
+      View {{ pkg.name }} Details
+    </button>
+
+    <div class="pricing-divider"></div>
+
+    <div class="pricing-section-title">
+      What’s included
+    </div>
+
+    <ul class="pricing-features">
+      <li *ngFor="let event of pkg.events">
+        {{ event }}
+      </li>
+    </ul>
+  </div>
+</div>
+</div>
