@@ -1,0 +1,235 @@
+<div class="admin-container">
+    <header class="admin-header">
+        <h1>Event Management</h1>
+        <button class="btn btn-primary" (click)="openAddEventForm()">+ Add New Event</button>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-info">
+                <h3>{{ stats().total }}</h3>
+                <p>Total Events</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🗓️</div>
+            <div class="stat-info">
+                <h3>{{ stats().thisMonth }}</h3>
+                <p>This Month</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🚀</div>
+            <div class="stat-info">
+                <h3>{{ stats().upcoming }}</h3>
+                <p>Upcoming</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-layout">
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- All Events Section -->
+            <div class="upcoming-section">
+                <h2>All Events</h2>
+                <div class="upcoming-list events-list">
+                    <div class="upcoming-item" *ngFor="let event of allEventsList()" (click)="viewEvent(event)">
+                        <div class="date-badge">
+                            <span class="day">{{ event.date | date:'dd' }}</span>
+                            <span class="month">{{ event.date | date:'MMM' }}</span>
+                        </div>
+                        <div class="event-details">
+                            <h4>{{ event.title }}</h4>
+                            <p>{{ event.time }} • {{ event.location }}</p>
+                            <span class="event-type-pill" [class]="event.type">{{ event.type | titlecase }}</span>
+                        </div>
+                        <div class="completion-badge" *ngIf="event.completionPercentage !== undefined">
+                            {{ event.completionPercentage }}%
+                        </div>
+                        <div class="arrow">→</div>
+                    </div>
+                    <div class="no-events" *ngIf="allEventsList().length === 0">
+                        <p>No events found.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar (Right) - Compact Calendar -->
+        <div class="sidebar">
+            <div class="calendar-wrapper compact">
+                <div class="calendar-header">
+                    <button class="nav-btn btn-primary-style" (click)="prevMonth()">←</button>
+                    <div class="header-title">
+                        <select (change)="onMonthChange($event)">
+                            <option *ngFor="let m of months; let i = index" [value]="i"
+                                [selected]="i === currentDate().getMonth()">{{ m }}</option>
+                        </select>
+                        <select (change)="onYearChange($event)">
+                            <option *ngFor="let y of availableYears()" [value]="y"
+                                [selected]="y === currentDate().getFullYear()">{{ y }}</option>
+                        </select>
+                    </div>
+                    <button class="nav-btn btn-primary-style" (click)="nextMonth()">→</button>
+                </div>
+
+                <div class="calendar-grid">
+                    <!-- Weekday Headers -->
+                    <div class="weekday">S</div>
+                    <div class="weekday">M</div>
+                    <div class="weekday">T</div>
+                    <div class="weekday">W</div>
+                    <div class="weekday">T</div>
+                    <div class="weekday">F</div>
+                    <div class="weekday">S</div>
+
+                    <!-- Days -->
+                    <div class="day-cell" *ngFor="let day of calendarDays()" [class.empty]="!day.isCurrentMonth"
+                        (click)="onDateClick(day)">
+                        <span class="day-number" *ngIf="day.dayNum > 0">{{ day.dayNum }}</span>
+
+                        <!-- Event Dots -->
+                        <div class="events-dots" *ngIf="day.events.length > 0">
+                            <div class="dot" *ngFor="let event of day.events" [class]="event.type || 'other'"
+                                [title]="event.title"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-add-event" (click)="openAddEventForm()">+ Add New Event</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Day Events List Modal -->
+    <div class="modal-overlay" *ngIf="selectedDayEvents()" (click)="closeDayEventsModal()">
+        <div class="modal-content day-events-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>{{ selectedDayEvents()?.date | date:'mediumDate' }}</h3>
+                <button class="close-btn" (click)="closeDayEventsModal()">×</button>
+            </div>
+
+            <div class="day-events-list">
+                <div class="event-item" *ngFor="let event of selectedDayEvents()?.events" (click)="viewEvent(event)">
+                    <div class="event-time">{{ event.time }}</div>
+                    <div class="event-info">
+                        <strong>{{ event.title }}</strong>
+                        <span>{{ event.location }}</span>
+                    </div>
+                    <div class="event-arrow">→</div>
+                </div>
+            </div>
+
+            <button class="btn-primary full-width" (click)="openAddEventForm(selectedDayEvents()?.date)">+ Add
+                Event</button>
+        </div>
+    </div>
+
+    <!-- Add Event Modal -->
+    <div class="modal-overlay" *ngIf="isFormVisible()" (click)="closeForm()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Add New Event</h3>
+                <button class="close-btn" (click)="closeForm()">×</button>
+            </div>
+            <form [formGroup]="eventForm" (ngSubmit)="onSubmit()">
+                <div class="form-group">
+                    <label>Event Title</label>
+                    <input type="text" formControlName="title" placeholder="Ex: Wedding Ceremony">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" formControlName="date">
+                    </div>
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="time" formControlName="time">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" formControlName="location" placeholder="Ex: Grand Hall">
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select formControlName="type">
+                            <option value="wedding">Wedding</option>
+                            <option value="corporate">Corporate</option>
+                            <option value="birthday">Birthday</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Completion: {{ eventForm.get('completionPercentage')?.value }}%</label>
+                    <input type="range" formControlName="completionPercentage" min="0" max="100" step="5"
+                        class="range-slider">
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea formControlName="description" rows="3" placeholder="Additional details..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" (click)="closeForm()">Cancel</button>
+                    <button type="submit" class="btn-primary" [disabled]="eventForm.invalid">Save Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Event Details Modal -->
+    <div class="modal-overlay" *ngIf="selectedEvent()" (click)="closeEventDetails()">
+        <div class="modal-content details-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Event Details</h3>
+                <button class="close-btn" (click)="closeEventDetails()">×</button>
+            </div>
+
+            <div class="event-details">
+                <h4>{{ selectedEvent()?.title }}</h4>
+                <span class="event-type-pill large" [class]="selectedEvent()?.type">{{ selectedEvent()?.type | titlecase
+                    }}</span>
+
+                <div class="detail-row">
+                    <span class="icon">📅</span>
+                    <span>{{ selectedEvent()?.date | date:'fullDate' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="icon">⏰</span>
+                    <span>{{ selectedEvent()?.time }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="icon">📍</span>
+                    <span>{{ selectedEvent()?.location }}</span>
+                </div>
+
+                <div class="progress-section" *ngIf="selectedEvent()?.completionPercentage !== undefined">
+                    <div class="progress-label">
+                        <span>Completion</span>
+                        <span>{{ selectedEvent()?.completionPercentage }}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" [style.width.%]="selectedEvent()?.completionPercentage"></div>
+                    </div>
+                </div>
+
+                <div class="description" *ngIf="selectedEvent()?.description">
+                    <p>{{ selectedEvent()?.description }}</p>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-danger" (click)="deleteEvent(selectedEvent()!.id)">Delete Event</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
