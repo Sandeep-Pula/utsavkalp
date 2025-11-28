@@ -14,5 +14,7 @@ export const routes: Routes = [
   { path: 'gallery', component: GalleryComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'occasions', component: OccasionsComponent },
+
+  
   { path: '**', redirectTo: '' }
 ];
