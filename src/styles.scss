@@ -29,20 +29,24 @@ body {
 
 /* HEADER / NAV */
 
+/* HEADER / NAV */
+
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 10;
-  background: rgba(250, 244, 236, 0.96);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--light);
+  z-index: 1000;
+  background: rgba(250, 244, 236, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(200, 155, 60, 0.2);
+  transition: all 0.3s ease;
 }
 
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 0;
+  padding: 0.5rem 0;
 }
 
 .logo {
@@ -57,21 +61,52 @@ body {
 
 .nav-links {
   display: flex;
-  gap: 1.1rem;
+  gap: 2rem;
   font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .nav-links a {
   text-decoration: none;
   color: var(--text);
+  position: relative;
+  padding-bottom: 4px;
+  transition: color 0.3s ease;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 50%;
+  background-color: var(--maroon);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
 }
 
 .nav-links a:hover {
   color: var(--maroon);
 }
 
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+.nav-links a.active {
+  color: var(--maroon);
+  font-weight: 600;
+}
+
+.nav-links a.active::after {
+  width: 100%;
+}
+
 .nav-cta {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  padding: 0.7rem 1.5rem;
+  box-shadow: 0 4px 15px rgba(107, 31, 42, 0.2);
 }
 
 /* BUTTONS */
@@ -184,6 +219,7 @@ body {
   max-width: 600px;
   font-size: 0.95rem;
   margin-bottom: 1.2rem;
+  text-align: justify;
 }
 
 /* CARDS */
@@ -226,7 +262,7 @@ body {
   margin-bottom: 0.3rem;
 }
 
-.package-cards .card + .card {
+.package-cards .card+.card {
   margin-top: 0.8rem;
 }
 
@@ -257,7 +293,8 @@ body {
 .gallery-item {
   background: #d7d0c8;
   border-radius: 12px;
-  padding-bottom: 70%; /* just to give it height */
+  padding-bottom: 70%;
+  /* just to give it height */
 }
 
 /* TESTIMONIALS */
@@ -329,7 +366,8 @@ body {
 
 .logo img,
 .logo-img {
-  height: 150px;     /* adjust size as needed */
+  height: 80px;
+  /* adjust size as needed */
   width: auto;
   object-fit: contain;
 }
@@ -354,7 +392,8 @@ body {
   }
 
   .nav-links {
-    display: none; /* keep desktop simple for now */
+    display: none;
+    /* keep desktop simple for now */
   }
 
   .nav-cta {

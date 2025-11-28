@@ -1,1 +1,50 @@
-<p>gallery works!</p>
+<section class="gallery-page">
+    <div class="container">
+        <div class="gallery-header">
+            <h1>Our Masterpieces</h1>
+            <p class="subtitle">A glimpse into the celebrations we've crafted with love and precision.</p>
+        </div>
+
+        <!-- Media Grid -->
+        <div class="gallery-grid">
+            <div class="gallery-item" *ngFor="let item of galleryItems">
+                <div class="media-wrapper">
+                    <img [src]="item.src" [alt]="item.caption" class="media-img" />
+                    <div class="play-icon" *ngIf="item.type === 'video'">▶</div>
+                    <div class="overlay">
+                        <span class="category">{{ item.category }}</span>
+                        <h3>{{ item.caption }}</h3>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <p>{{ item.description }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testimonials -->
+        <div class="testimonials-section">
+            <div class="section-header">
+                <h2>Client Love</h2>
+                <p>Stories from those who celebrated with us.</p>
+            </div>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card" *ngFor="let review of testimonials">
+                    <div class="quote-icon">“</div>
+                    <p class="review-text">{{ review.text }}</p>
+
+                    <div class="review-footer">
+                        <div class="client-info">
+                            <h4>{{ review.name }}</h4>
+                            <span class="role">{{ review.role }}</span>
+                        </div>
+                        <div class="rating">
+                            <span class="star" *ngFor="let star of getStars(review.rating)">★</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -2,390 +2,383 @@
    PAGE WRAPPER
 ============================ */
 .services-page {
-    background: #fcf7f1;
-    padding: 2.5rem 0 4rem;  // keeps spacing similar to home but without large top gap
-  }
-  
-  /* ============================
-     GRID LAYOUT
-  ============================ */
-  .services-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 2rem;
-  }
-  
-  /* ============================
-     SERVICE CARD
-  ============================ */
-  .service-card {
-    background: #fff;
-    border-radius: 14px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #f1e6db;
-  }
-  
-  .service-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
-  }
-  
-  /* ============================
-     IMAGE WRAPPER
-  ============================ */
-  .service-image-wrapper {
-    position: relative;
-    width: 100%;
-    height: 220px;
-    overflow: hidden;
-    border-bottom: 1px solid #f3e8dd;
-  }
-  
-  .service-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 1.2s ease;
-  }
-  
-  .service-card:hover .service-image {
-    transform: scale(1.08);
-  }
-  
-  /* Tag (Birthdays, Weddings, etc.) */
-  .service-tag {
-    position: absolute;
-    bottom: 12px;
-    left: 12px;
-    background: #fff;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border: 1px solid #d9c4b6;
-    color: #7a3e26;
-  }
-  
-  /* ============================
-     INFO SECTION
-  ============================ */
-  .service-info {
-    padding: 1.2rem 1.3rem 1.6rem;
-  }
-  
-  .service-info h2 {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #701b28;  /* Matching your UtsavKalp brand color */
-    margin: 0 0 0.6rem;
-  }
-  
-  .service-info p {
-    font-size: 0.95rem;
-    color: #555;
-    margin: 0 0 1rem;
-    line-height: 1.4;
-  }
-  
-  /* "View Packages" CTA */
-  .service-cta {
-    display: inline-block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #701b28;
-    border-bottom: 1px solid #701b28;
-    padding-bottom: 2px;
-    transition: color 0.2s ease, border-color 0.2s ease;
-  }
-  
-  .service-card:hover .service-cta {
-    color: #aa2338;
-    border-color: #aa2338;
-  }
-  
-
-  .services-page {
-    padding: 2.5rem 0 4rem;
-    position: relative;
-  }
-  
-  .services-page.blurred {
-    filter: blur(3px);
-    pointer-events: none;
-  }
-  
-  /* Backdrop behind modal */
-  .packages-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(4px);
-    z-index: 20;
-  }
-  
-  /* Modal container */
-  .packages-modal {
-    position: fixed;
-    inset: 8vh 8vw;
-    background: #fff;
-    border-radius: 16px;
-    padding: 2rem 2.5rem 2.25rem;
-    z-index: 30;
-    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.16);
-    max-height: 84vh;
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-  
-  .modal-close {
-    position: absolute;
-    top: 0.9rem;
-    right: 1.2rem;
-    border: none;
-    background: transparent;
-    font-size: 1.8rem;
-    line-height: 1;
-    cursor: pointer;
-    color: #aa2436;
-  }
-  
-  .packages-title {
-    font-size: 1.6rem;
-    margin: 0;
-    color: #7a1f2d;
-  }
-  
-  .packages-subtitle {
-    margin: 0;
-    color: #6b6b6b;
-  }
-  
-  /* table */
-  .packages-table-wrapper {
-    overflow-x: auto;
-  }
-  
-  .packages-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.95rem;
-  }
-  
-  .packages-table thead th {
-    padding: 0.75rem 0.6rem;
-    text-align: left;
-    color: #7a1f2d;
-    border-bottom: 1px solid #f1e4d8;
-    white-space: nowrap;
-  }
-  
-  .packages-table tbody th {
-    padding: 0.75rem 0.6rem;
-    text-align: left;
-    font-weight: 600;
-    color: #444;
-    border-bottom: 1px solid #f5ebe0;
-  }
-  
-  .packages-table td {
-    padding: 0.75rem 0.6rem;
-    vertical-align: top;
-    border-bottom: 1px solid #f5ebe0;
-  }
-  
-  .packages-table ul {
-    margin: 0;
-    padding-left: 1.1rem;
-  }
-  
-  .packages-table li {
-    margin-bottom: 0.15rem;
-  }
-  
-  /* footer buttons */
-  .packages-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    margin-top: 0.5rem;
-  }
-  
-
-
-  /* blur main grid when modal is open */
-.services-grid.blurred {
-  filter: blur(3px);
-  pointer-events: none;
+  background: var(--bg);
+  padding: 4rem 0 6rem;
+  min-height: 100vh;
+  position: relative;
 }
 
-/* backdrop behind the modal */
+/* ============================
+   GRID LAYOUT
+============================ */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2.5rem;
+  padding: 1rem 0;
+}
+
+/* ============================
+   SERVICE CARD
+============================ */
+.service-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(200, 155, 60, 0.1);
+  position: relative;
+
+  &:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(107, 31, 42, 0.1);
+    border-color: rgba(200, 155, 60, 0.3);
+
+    .service-image {
+      transform: scale(1.1);
+    }
+
+    .service-cta {
+      color: var(--maroon);
+
+      &::after {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+  }
+}
+
+/* ============================
+   IMAGE WRAPPER
+============================ */
+.service-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  overflow: hidden;
+}
+
+.service-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s ease;
+}
+
+/* Tag */
+.service-tag {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 6px 14px;
+  border-radius: 30px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--maroon);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4px);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ============================
+   INFO SECTION
+============================ */
+.service-info {
+  padding: 1.8rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.service-info h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--maroon);
+  margin: 0 0 0.8rem;
+  line-height: 1.2;
+}
+
+.service-info p {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0 0 1.5rem;
+  line-height: 1.6;
+  flex-grow: 1;
+  text-align: justify;
+}
+
+/* "View Packages" CTA */
+.service-cta {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--gold);
+  transition: all 0.3s ease;
+  margin-top: auto;
+
+  &::after {
+    content: '→';
+    margin-left: 6px;
+    opacity: 0;
+    transform: translateX(-5px);
+    transition: all 0.3s ease;
+  }
+}
+
+/* ============================
+   MODAL & PACKAGES
+============================ */
+
+/* Blur effect for background */
+.services-page.blurred {
+  filter: blur(5px);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Backdrop */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(10, 10, 10, 0.35);
-  z-index: 40;
+  background: rgba(43, 35, 32, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  animation: fadeIn 0.3s ease;
 }
 
-/* modal container */
+/* Modal Container */
 .packages-modal {
   position: fixed;
-  inset: 50% auto auto 50%;
-  transform: translate(-50%, -50%);
-  width: min(1100px, 95vw);
+  inset: 5vh auto auto 50%;
+  transform: translateX(-50%);
+  width: min(1000px, 92vw);
   max-height: 90vh;
-  background: #fdf7f1;
-  border-radius: 18px;
-  box-shadow: 0 22px 60px rgba(15, 15, 15, 0.4);
-  padding: 24px 28px 28px;
-  z-index: 50;
-  overflow: auto;
+  background: #fff;
+  border-radius: 24px;
+  padding: 0;
+  z-index: 101;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* header + close button */
+/* Modal Header */
 .modal-header {
+  padding: 1.5rem 2rem;
+  background: #faf4ec;
+  border-bottom: 1px solid rgba(200, 155, 60, 0.15);
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 4px;
+  align-items: flex-start;
 
   h2 {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #7a1225;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    margin: 0;
+    color: var(--maroon);
   }
+}
+
+.modal-subtitle {
+  padding: 1rem 2rem 0;
+  margin: 0;
+  color: #888;
+  font-size: 0.95rem;
+  background: #fff;
 }
 
 .close-btn {
-  border: none;
   background: transparent;
-  font-size: 1.8rem;
+  border: none;
+  font-size: 2rem;
   line-height: 1;
+  color: var(--maroon);
   cursor: pointer;
-  color: #7a1225;
+  opacity: 0.7;
+  transition: 0.2s;
+  padding: 0;
+  margin-left: 1rem;
+
+  &:hover {
+    opacity: 1;
+    transform: rotate(90deg);
+  }
 }
 
-/* subtitle */
-.modal-subtitle {
-  margin: 0 0 18px;
-  font-size: 0.95rem;
-  color: #5b4c43;
-}
-
-/* ====== pricing cards layout ====== */
-
+/* ============================
+   PRICING CARDS
+============================ */
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem 2rem;
+  overflow-y: auto;
+  align-items: start;
 }
 
-/* individual card */
 .pricing-card {
-  background: #ffffff;
-  border-radius: 14px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-  padding: 22px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  text-align: left;
-  position: relative;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* middle / highlighted card */
-.pricing-card.featured {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.12);
-}
-
-/* card header */
-.pricing-header {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #eee;
+  padding: 2rem;
   text-align: center;
-  margin-bottom: 14px;
+  transition: all 0.3s ease;
+  position: relative;
+
+  &:hover {
+    border-color: var(--gold);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+  }
+
+  &.featured {
+    border: 2px solid var(--gold);
+    background: linear-gradient(to bottom, #fffbf5, #fff);
+    transform: scale(1.05);
+    box-shadow: 0 20px 40px rgba(200, 155, 60, 0.15);
+    z-index: 1;
+
+    .pricing-header h3 {
+      color: var(--gold);
+    }
+
+    .pricing-cta {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #fff;
+
+      &:hover {
+        background: #b0862e;
+      }
+    }
+  }
+}
+
+.pricing-header {
+  margin-bottom: 1.5rem;
 
   h3 {
-    margin: 0 0 4px;
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #333;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
   }
 
   .pricing-duration {
-    margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #777;
+    letter-spacing: 1px;
+    color: #999;
+    font-weight: 500;
   }
 }
 
-/* Maroon button like screenshot (use your brand color if you prefer) */
-.pricing-cta {
-  border: none;
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 6px;
-  background: #7a1225;
-  color: #fff;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 12px;
-}
-
-/* thin divider line */
 .pricing-divider {
   height: 1px;
-  background: #eee;
-  margin-bottom: 10px;
+  background: linear-gradient(to right, transparent, #eee, transparent);
+  margin: 1.5rem 0;
 }
 
-/* section title */
 .pricing-section-title {
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #999;
-  margin-bottom: 6px;
+  letter-spacing: 1px;
+  color: #aaa;
+  margin-bottom: 1rem;
+  font-weight: 600;
 }
 
-/* features list */
 .pricing-features {
   list-style: none;
   padding: 0;
+  margin: 0 0 1.5rem;
+  text-align: left;
 
   li {
     position: relative;
-    padding-left: 26px;
-    margin-bottom: 8px;
+    padding-left: 1.8rem;
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+    color: #555;
 
     &::before {
       content: '✓';
       position: absolute;
       left: 0;
-      top: 0;
-      color: #8B2030;  /* theme color */
+      color: var(--gold);
       font-weight: bold;
-      font-size: 16px;
     }
   }
 }
 
+.pricing-cta {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 50px;
+  border: 1px solid var(--maroon);
+  background: transparent;
+  color: var(--maroon);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
 
+  &:hover {
+    background: var(--maroon);
+    color: #fff;
+  }
+}
 
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
 
-/* small hover lift */
-.pricing-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .packages-modal {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    inset: 0;
+    transform: none;
+    border-radius: 0;
+  }
+
+  .pricing-card.featured {
+    transform: none;
+  }
+
+  .pricing-grid {
+    padding: 1rem;
+  }
 }
