@@ -38,6 +38,12 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist/utsavkalp-site/browser   # 👈 EXACT MATCH TO YOUR angular.json
+
+      - name: Upload build artifact for Firebase
+        uses: actions/upload-artifact@v4
+        with:
+          name: firebase-build
+          path: dist/utsavkalp-site/browser
           
   deploy:
     needs: build
@@ -47,6 +53,20 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifact for Firebase
+        uses: actions/download-artifact@v4
+        with:
+          name: firebase-build
+          path: dist/utsavkalp-site/browser
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        
+ # ====== DEPLOY TO FIREBASE HOSTING ======
+      - name: Deploy to Firebase Hosting
+        run: npx firebase-tools deploy --only hosting --project utsavkalp
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

@@ -51,7 +51,7 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/utsavkalp/"
+              "baseHref": "/"
             },
             "development": {
               "optimization": false,
@@ -87,7 +87,6 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               {
-                
                 "glob": "**/*",
                 "input": "public"
               }
