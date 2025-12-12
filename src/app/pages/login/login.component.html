@@ -1,14 +1,14 @@
 <div class="login-container">
     <div class="login-card">
         <div class="login-header">
-            <h2>Admin Login</h2>
+            <h2>Login</h2>
             <p>Please sign in to continue</p>
         </div>
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
             <div class="form-group">
-                <label>Username</label>
-                <input type="text" formControlName="username" placeholder="Enter username">
+                <label>Email</label>
+                <input type="email" formControlName="email" placeholder="Enter email">
             </div>
 
             <div class="form-group">
@@ -21,7 +21,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary btn-block" [disabled]="loginForm.invalid">
-                Sign In
+                Log In
             </button>
         </form>
     </div>

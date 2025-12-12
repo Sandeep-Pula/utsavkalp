@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-login',
@@ -13,9 +14,10 @@ import { Router } from '@angular/router';
 export class LoginComponent {
     private fb = inject(FormBuilder);
     private router = inject(Router);
+    private authService = inject(AuthService);
 
     loginForm: FormGroup = this.fb.group({
-        username: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
         password: ['', Validators.required]
     });
 
@@ -23,14 +25,16 @@ export class LoginComponent {
 
     onSubmit() {
         if (this.loginForm.valid) {
-            // Mock authentication
-            const { username, password } = this.loginForm.value;
+            const { email, password } = this.loginForm.value;
 
-            if (username === 'admin' && password === 'admin') {
-                this.router.navigate(['/admin']);
-            } else {
-                this.error = 'Invalid credentials. Try admin/admin';
-            }
+            this.authService.login(email, password)
+                .then(() => {
+                    this.router.navigate(['/admin']);
+                })
+                .catch(err => {
+                    this.error = 'Login failed. Please check your credentials.';
+                    console.error('Login error:', err);
+                });
         }
     }
 }

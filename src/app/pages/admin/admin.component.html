@@ -1,7 +1,10 @@
 <div class="admin-container">
     <header class="admin-header">
         <h1>Event Management</h1>
-        <button class="btn btn-primary" (click)="openAddEventForm()">+ Add New Event</button>
+        <div class="header-actions">
+            <button class="btn btn-primary" (click)="openAddEventForm()">+ Add New Event</button>
+            <button class="btn btn-secondary" (click)="logout()">Logout</button>
+        </div>
     </header>
 
     <div class="stats-grid">
@@ -144,10 +147,18 @@
                     <div class="form-group">
                         <label>Date</label>
                         <input type="date" formControlName="date">
+                        <div class="error-text"
+                            *ngIf="eventForm.get('date')?.invalid && eventForm.get('date')?.touched">
+                            Date is required
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Time</label>
                         <input type="time" formControlName="time">
+                        <div class="error-text"
+                            *ngIf="eventForm.get('time')?.invalid && eventForm.get('time')?.touched">
+                            Time is required
+                        </div>
                     </div>
                 </div>
 
@@ -168,9 +179,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Completion: {{ eventForm.get('completionPercentage')?.value }}%</label>
+                    <label>Completion: {{ completionValue() }}%</label>
                     <input type="range" formControlName="completionPercentage" min="0" max="100" step="5"
-                        class="range-slider">
+                        class="range-slider" (input)="updateSliderValue($event)">
                 </div>
 
                 <div class="form-group">
@@ -180,7 +191,7 @@
 
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary" (click)="closeForm()">Cancel</button>
-                    <button type="submit" class="btn-primary" [disabled]="eventForm.invalid">Save Event</button>
+                    <button type="submit" class="btn-primary">Save Event</button>
                 </div>
             </form>
         </div>

@@ -1,7 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { EventService, CalendarEvent } from '../../services/event.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-admin',
@@ -12,12 +14,15 @@ import { EventService, CalendarEvent } from '../../services/event.service';
 })
 export class AdminComponent {
     private eventService = inject(EventService);
+    private authService = inject(AuthService);
     private fb = inject(FormBuilder);
+    private router = inject(Router);
 
     // Calendar State
     currentDate = signal(new Date());
     selectedEvent = signal<CalendarEvent | null>(null);
     isFormVisible = signal(false);
+    completionValue = signal(0);
 
     // Form
     eventForm: FormGroup = this.fb.group({
@@ -152,6 +157,7 @@ export class AdminComponent {
         this.selectedEvent.set(null);
         this.selectedDayEvents.set(null); // Close day list if open
         this.eventForm.reset();
+        this.completionValue.set(0); // Reset slider display
         this.eventForm.patchValue({ type: 'wedding', completionPercentage: 0 }); // Default values
         if (date) {
             this.eventForm.patchValue({ date });
@@ -174,9 +180,27 @@ export class AdminComponent {
 
     onSubmit() {
         if (this.eventForm.valid) {
-            this.eventService.addEvent(this.eventForm.value);
-            this.closeForm();
-            this.eventForm.reset();
+            this.eventService.addEvent(this.eventForm.value)
+                .then(() => {
+                    // Success: Close form and reset
+                    this.closeForm();
+                    this.eventForm.reset();
+                })
+                .catch(err => {
+                    // Failure: Show error to user
+                    console.error('Firestore Error:', err);
+                    alert('Error saving event: ' + err.message);
+                });
+        } else {
+            // Debug: Show which fields are invalid
+            const invalidFields = [];
+            const controls = this.eventForm.controls;
+            for (const name in controls) {
+                if (controls[name].invalid) {
+                    invalidFields.push(name);
+                }
+            }
+            alert('Form is invalid. Please fill in: ' + invalidFields.join(', '));
         }
     }
 
@@ -185,5 +209,17 @@ export class AdminComponent {
             this.eventService.deleteEvent(id);
             this.closeEventDetails();
         }
+    }
+
+    logout() {
+        this.authService.logout().then(() => {
+            this.router.navigate(['/login']);
+        });
+    }
+
+    updateSliderValue(event: Event) {
+        const value = parseInt((event.target as HTMLInputElement).value, 10);
+        this.completionValue.set(value);
+        this.eventForm.patchValue({ completionPercentage: value });
     }
 }

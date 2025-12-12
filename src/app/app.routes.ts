@@ -9,13 +9,15 @@ import { AdminComponent } from './pages/admin/admin.component';
 
 import { LoginComponent } from './pages/login/login.component';
 
+import { authGuard } from './guards/auth.guard';
+
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'about', component: AboutComponent },
   { path: 'services', component: ServicesComponent },
   { path: 'gallery', component: GalleryComponent },
   { path: 'contact', component: ContactComponent },
-  { path: 'admin', component: AdminComponent },
+  { path: 'admin', component: AdminComponent, canActivate: [authGuard] },
   { path: 'login', component: LoginComponent },
 
 

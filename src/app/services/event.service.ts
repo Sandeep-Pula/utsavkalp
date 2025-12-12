@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Firestore, collection, addDoc, deleteDoc, doc, collectionData } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, deleteDoc, updateDoc, doc, collectionData } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
@@ -30,12 +30,17 @@ export class EventService {
     constructor() { }
 
     addEvent(newEvent: Omit<CalendarEvent, 'id'>) {
-        addDoc(this.eventsCollection, newEvent);
+        return addDoc(this.eventsCollection, newEvent);
     }
 
     deleteEvent(id: string) {
         const docRef = doc(this.firestore, `events/${id}`);
         deleteDoc(docRef);
+    }
+
+    updateEvent(id: string, data: Partial<CalendarEvent>) {
+        const docRef = doc(this.firestore, `events/${id}`);
+        updateDoc(docRef, data);
     }
 
     getEventsByDate(date: string): CalendarEvent[] {
