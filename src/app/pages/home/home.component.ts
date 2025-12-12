@@ -83,7 +83,7 @@ export class HomeComponent implements OnInit {
   // Hero Section Data
   hero: HeroSection = {
     tagline: 'Premium Event & Function Management',
-    title: 'At Utsav Kalp, We Craft Your Celebrations.',
+    title: 'At Utsav Kalp, We Craft Your Triumph.',
     description: '“An event is never just food and farewells. It’s the one time family gathers under one roof, to laugh, bless and remember. At UtsavKalp, we want you in every moment of that togetherness — not worrying about décor, catering or coordination. You savour the family, we manage the function.”',
     ctaPrimary: 'Plan My Event',
     ctaSecondary: 'WhatsApp Us',
