@@ -1,4 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { Firestore, collection, addDoc, deleteDoc, doc, collectionData } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 export interface CalendarEvent {
     id: string;
@@ -15,52 +18,24 @@ export interface CalendarEvent {
     providedIn: 'root'
 })
 export class EventService {
-    // Mock Data
-    private initialEvents: CalendarEvent[] = [
-        {
-            id: '1',
-            title: 'Wedding Ceremony',
-            date: '2025-11-15',
-            time: '10:00',
-            location: 'Grand Hall',
-            description: 'Main wedding ceremony for Client A',
-            type: 'wedding',
-            completionPercentage: 80
-        },
-        {
-            id: '2',
-            title: 'Corporate Gala',
-            date: '2025-11-20',
-            time: '18:00',
-            location: 'Ballroom B',
-            description: 'Annual gala dinner',
-            type: 'corporate',
-            completionPercentage: 45
-        },
-        {
-            id: '3',
-            title: 'Birthday Bash',
-            date: '2025-11-25',
-            time: '19:00',
-            location: 'Garden Area',
-            type: 'birthday',
-            completionPercentage: 10
-        }
-    ];
-    readonly events = signal<CalendarEvent[]>(this.initialEvents);
+    private firestore = inject(Firestore);
+    private eventsCollection = collection(this.firestore, 'events');
+
+    // Real-time signal from Firestore
+    readonly events = toSignal(
+        collectionData(this.eventsCollection, { idField: 'id' }) as Observable<CalendarEvent[]>,
+        { initialValue: [] }
+    );
 
     constructor() { }
 
     addEvent(newEvent: Omit<CalendarEvent, 'id'>) {
-        const event: CalendarEvent = {
-            ...newEvent,
-            id: crypto.randomUUID()
-        };
-        this.events.update(current => [...current, event]);
+        addDoc(this.eventsCollection, newEvent);
     }
 
     deleteEvent(id: string) {
-        this.events.update(current => current.filter(e => e.id !== id));
+        const docRef = doc(this.firestore, `events/${id}`);
+        deleteDoc(docRef);
     }
 
     getEventsByDate(date: string): CalendarEvent[] {
