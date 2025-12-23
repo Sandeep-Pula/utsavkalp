@@ -386,21 +386,81 @@ body {
 
 /* RESPONSIVE */
 
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 21px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1100;
+}
+
+.menu-toggle .bar {
+  height: 3px;
+  width: 100%;
+  background-color: var(--maroon);
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.mobile-only {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .hero {
     grid-template-columns: 1fr;
+    padding-top: 1.5rem;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-only {
+    display: inline-block;
+  }
+
+  .menu-toggle {
+    display: flex;
   }
 
   .nav-links {
-    display: none;
-    /* keep desktop simple for now */
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100vh;
+    width: 70%;
+    max-width: 300px;
+    background: #fff;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem;
+    transition: right 0.3s ease-in-out;
+    z-index: 1050;
   }
 
-  .nav-cta {
-    display: none;
+  .nav-links.active {
+    right: 0;
   }
 
-  .hero {
-    padding-top: 1.5rem;
+  /* Overlay backdrop when menu is open */
+  .nav-links.active::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+    pointer-events: none;
+    /* simple workaround, ideally logic handles backdrop click */
   }
 }

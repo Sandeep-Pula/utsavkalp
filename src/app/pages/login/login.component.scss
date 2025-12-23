@@ -43,6 +43,12 @@
         margin-bottom: 0.5rem;
     }
 
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
     input {
         width: 100%;
         padding: 0.8rem;
@@ -50,11 +56,34 @@
         border-radius: 8px;
         font-family: inherit;
         transition: all 0.3s;
+        padding-right: 40px; // Make space for the icon
 
         &:focus {
             outline: none;
             border-color: var(--gold);
             box-shadow: 0 0 0 3px rgba(200, 155, 60, 0.1);
+        }
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        color: #888;
+        transition: color 0.3s;
+
+        &:hover {
+            color: var(--maroon);
+        }
+
+        &:focus {
+            outline: none;
+            color: var(--maroon);
         }
     }
 }

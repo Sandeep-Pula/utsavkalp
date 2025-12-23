@@ -22,6 +22,11 @@ export class LoginComponent {
     });
 
     error = '';
+    showPassword = false;
+
+    togglePasswordVisibility(): void {
+        this.showPassword = !this.showPassword;
+    }
 
     onSubmit() {
         if (this.loginForm.valid) {

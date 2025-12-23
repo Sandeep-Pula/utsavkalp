@@ -7,18 +7,26 @@
     </a>
 
 
-    <nav class="nav-links">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-        Home
-      </a>
-      <a routerLink="/about" routerLinkActive="active">About</a>
-      <a routerLink="/services" routerLinkActive="active">Services</a>
-      <a routerLink="/gallery" routerLinkActive="active">Gallery</a>
-      <a routerLink="/contact" routerLinkActive="active">Contact</a>
-      <a routerLink="/login" routerLinkActive="active">Admin</a>
+    <!-- Mobile Toggle -->
+    <button class="menu-toggle" (click)="toggleMenu()" aria-label="Toggle navigation">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
+    <nav class="nav-links" [class.active]="isMenuOpen">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+        (click)="closeMenu()">Home</a>
+      <a routerLink="/about" routerLinkActive="active" (click)="closeMenu()">About</a>
+      <a routerLink="/services" routerLinkActive="active" (click)="closeMenu()">Services</a>
+      <a routerLink="/gallery" routerLinkActive="active" (click)="closeMenu()">Gallery</a>
+      <a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">Contact</a>
+      <a routerLink="/login" routerLinkActive="active" (click)="closeMenu()">Admin</a>
+
+      <a routerLink="/contact" class="btn btn-primary nav-cta mobile-only" (click)="closeMenu()">Plan My Event</a>
     </nav>
 
-    <a routerLink="/contact" class="btn btn-primary nav-cta">Plan My Event</a>
+    <a routerLink="/contact" class="btn btn-primary nav-cta desktop-only">Plan My Event</a>
   </div>
 </header>
 

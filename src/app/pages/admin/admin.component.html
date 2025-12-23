@@ -8,21 +8,21 @@
     </header>
 
     <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card" (click)="openStatModal('total')">
             <div class="stat-icon">📅</div>
             <div class="stat-info">
                 <h3>{{ stats().total }}</h3>
                 <p>Total Events</p>
             </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" (click)="openStatModal('month')">
             <div class="stat-icon">🗓️</div>
             <div class="stat-info">
                 <h3>{{ stats().thisMonth }}</h3>
                 <p>This Month</p>
             </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" (click)="openStatModal('upcoming')">
             <div class="stat-icon">🚀</div>
             <div class="stat-info">
                 <h3>{{ stats().upcoming }}</h3>
@@ -36,7 +36,12 @@
         <div class="main-content">
             <!-- All Events Section -->
             <div class="upcoming-section">
-                <h2>All Events</h2>
+                <div class="section-header">
+                    <h2>All Events</h2>
+                    <button class="icon-btn" (click)="openSearch()" title="Search Events">
+                        🔍
+                    </button>
+                </div>
                 <div class="upcoming-list events-list">
                     <div class="upcoming-item" *ngFor="let event of allEventsList()" (click)="viewEvent(event)">
                         <div class="date-badge">
@@ -47,6 +52,9 @@
                             <h4>{{ event.title }}</h4>
                             <p>{{ event.time }} • {{ event.location }}</p>
                             <span class="event-type-pill" [class]="event.type">{{ event.type | titlecase }}</span>
+                            <button class="btn btn-manage"
+                                style="font-size: 0.8rem; padding: 0.3rem 0.8rem; margin-top: 0.5rem;"
+                                (click)="$event.stopPropagation(); navigateToManage(event.id)">Manage Event</button>
                         </div>
                         <div class="completion-badge" *ngIf="event.completionPercentage !== undefined">
                             {{ event.completionPercentage }}%
@@ -170,10 +178,21 @@
                     <div class="form-group">
                         <label>Type</label>
                         <select formControlName="type">
-                            <option value="wedding">Wedding</option>
-                            <option value="corporate">Corporate</option>
-                            <option value="birthday">Birthday</option>
-                            <option value="other">Other</option>
+                            <option value="wedding">Weddings & Receptions</option>
+                            <option value="pre-wedding">Pre-Wedding Shoots</option>
+                            <option value="housewarming">House Warming</option>
+                            <option value="birthday">Birthday Celebrations</option>
+                            <option value="shop-opening">Shop / Office Opening</option>
+                            <option value="half-saree">Half Saree Function</option>
+                            <option value="other">Other Events</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Service Plan</label>
+                        <select formControlName="planType">
+                            <option *ngFor="let plan of availablePlans()" [value]="plan.key">
+                                {{ plan.label }}
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -238,7 +257,82 @@
                 </div>
 
                 <div class="modal-actions">
+                    <button class="btn btn-manage" (click)="navigateToManage(selectedEvent()!.id)">Manage Event</button>
                     <button class="btn-danger" (click)="deleteEvent(selectedEvent()!.id)">Delete Event</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="modal-overlay search-overlay" *ngIf="isSearchVisible()" (click)="closeSearch()">
+        <div class="modal-content search-modal" (click)="$event.stopPropagation()">
+            <div class="search-header">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Search events by title, location, or type..."
+                        [value]="searchQuery()" (input)="onSearchInput($event)" autoFocus>
+                </div>
+                <button class="close-btn" (click)="closeSearch()">×</button>
+            </div>
+
+            <div class="search-results">
+                <div class="search-results-list" *ngIf="searchQuery()">
+                    <div class="upcoming-item" *ngFor="let event of searchResults()" (click)="viewEvent(event)">
+                        <div class="date-badge">
+                            <span class="day">{{ event.date | date:'dd' }}</span>
+                            <span class="month">{{ event.date | date:'MMM' }}</span>
+                        </div>
+                        <div class="event-details">
+                            <h4>{{ event.title }}</h4>
+                            <p>{{ event.time }} • {{ event.location }}</p>
+                            <span class="event-type-pill" [class]="event.type">{{ event.type | titlecase }}</span>
+                            <button class="btn btn-manage"
+                                style="font-size: 0.8rem; padding: 0.3rem 0.8rem; margin-top: 0.5rem;"
+                                (click)="$event.stopPropagation(); navigateToManage(event.id)">Manage Event</button>
+                        </div>
+                        <div class="arrow">→</div>
+                    </div>
+                </div>
+
+                <div class="no-results" *ngIf="searchQuery() && searchResults().length === 0">
+                    <p>No events found for "{{ searchQuery() }}"</p>
+                </div>
+
+                <div class="initial-state" *ngIf="!searchQuery()">
+                    <p>Type to search...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Modal -->
+    <div class="modal-overlay stats-overlay" *ngIf="statModalVisible()" (click)="closeStatModal()">
+        <div class="modal-content stats-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>{{ statModalTitle() }}</h3>
+                <button class="close-btn" (click)="closeStatModal()">×</button>
+            </div>
+
+            <div class="stats-list-container">
+                <div class="upcoming-item" *ngFor="let event of statModalEvents()" (click)="viewEvent(event)">
+                    <div class="date-badge">
+                        <span class="day">{{ event.date | date:'dd' }}</span>
+                        <span class="month">{{ event.date | date:'MMM' }}</span>
+                    </div>
+                    <div class="event-details">
+                        <h4>{{ event.title }}</h4>
+                        <p>{{ event.time }} • {{ event.location }}</p>
+                        <span class="event-type-pill" [class]="event.type">{{ event.type | titlecase }}</span>
+                        <button class="btn btn-manage"
+                            style="font-size: 0.8rem; padding: 0.3rem 0.8rem; margin-top: 0.5rem;"
+                            (click)="$event.stopPropagation(); navigateToManage(event.id)">Manage Event</button>
+                    </div>
+                    <div class="arrow">→</div>
+                </div>
+
+                <div class="no-events" *ngIf="statModalEvents().length === 0">
+                    <p>No events found for this category.</p>
                 </div>
             </div>
         </div>

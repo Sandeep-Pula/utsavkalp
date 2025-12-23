@@ -7,6 +7,7 @@ import { GalleryComponent } from './pages/gallery/gallery.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { AdminComponent } from './pages/admin/admin.component';
 
+import { ManageEventComponent } from './pages/admin/manage-event/manage-event.component';
 import { LoginComponent } from './pages/login/login.component';
 
 import { authGuard } from './guards/auth.guard';
@@ -18,6 +19,7 @@ export const routes: Routes = [
   { path: 'gallery', component: GalleryComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'admin', component: AdminComponent, canActivate: [authGuard] },
+  { path: 'admin/manage-event/:id', component: ManageEventComponent, canActivate: [authGuard] },
   { path: 'login', component: LoginComponent },
 
 

@@ -1,0 +1,46 @@
+<div class="manage-container">
+    <div class="manage-card" *ngIf="event()">
+        <header class="manage-header">
+            <button class="back-btn" (click)="goBack()">← Back</button>
+            <div class="header-info">
+                <h2>Manage Event</h2>
+                <div class="plan-selector">
+                    <select [value]="event()?.planType || 'basic'" (change)="onPlanChange($event)" class="plan-badge"
+                        [class]="event()?.planType || 'basic'">
+                        <option *ngFor="let option of currentPlanOptions" [value]="option.key">
+                            {{ option.label | uppercase }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <h1 class="event-title">{{ event()?.title }}</h1>
+        </header>
+
+        <div class="progress-section">
+            <div class="progress-header">
+                <span>Progress</span>
+                <span class="percentage">{{ calculateProgress() }}%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" [style.width.%]="calculateProgress()"></div>
+            </div>
+        </div>
+
+        <div class="checklist-container">
+            <h3>Event Checklist</h3>
+            <div class="checklist-items">
+                <div class="checklist-item" *ngFor="let item of checklist(); let i = index" (click)="toggleItem(i)"
+                    [class.completed]="item.completed">
+                    <div class="checkbox">
+                        <span *ngIf="item.completed">✓</span>
+                    </div>
+                    <span class="label">{{ item.label }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-save" (click)="saveProgress()">Save Progress</button>
+        </div>
+    </div>
+</div>

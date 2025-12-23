@@ -24,6 +24,10 @@ export class AdminComponent {
     isFormVisible = signal(false);
     completionValue = signal(0);
 
+    // Search State
+    isSearchVisible = signal(false);
+    searchQuery = signal('');
+
     // Form
     eventForm: FormGroup = this.fb.group({
         title: ['', Validators.required],
@@ -31,6 +35,7 @@ export class AdminComponent {
         time: ['', Validators.required],
         location: ['', Validators.required],
         type: ['wedding', Validators.required],
+        planType: ['basic', Validators.required],
         description: [''],
         completionPercentage: [0]
     });
@@ -39,6 +44,38 @@ export class AdminComponent {
     currentMonthName = computed(() => {
         return this.currentDate().toLocaleString('default', { month: 'long', year: 'numeric' });
     });
+
+    // Dynamic Service Plans
+    selectedEventType = signal('wedding');
+
+    availablePlans = computed(() => {
+        const type = this.selectedEventType();
+        const plans = this.EVENT_PLANS_LABELS[type] || this.EVENT_PLANS_LABELS['wedding'];
+        return Object.keys(plans).map(key => ({ key, label: plans[key] }));
+    });
+
+    private readonly EVENT_PLANS_LABELS: any = {
+        'wedding': { basic: 'Basic', pro: 'Pro', premium: 'Premium', elite: 'Elite' },
+        'pre-wedding': { basic: 'State Tour', pro: 'Bharat Tour', premium: 'Overseas Tour' },
+        'housewarming': { basic: 'Divine Blessings', pro: 'Elegant Celebrations', premium: 'Grand Feasta' },
+        'birthday': { basic: 'Simple Celebration', pro: 'Classic Premium', premium: 'Royal Grand' },
+        'shop-opening': { basic: 'Simple Opening', pro: 'Standard Grand', premium: 'Elite Corporate' },
+        'half-saree': { basic: 'Lakshmi Package', pro: 'Sree Lakshmi', premium: 'Maha Lakshmi' },
+        'other': { basic: 'Custom Plan' }
+    };
+
+    constructor() {
+        // Update plans when type changes
+        this.eventForm.get('type')?.valueChanges.subscribe(val => {
+            this.selectedEventType.set(val);
+            // Verify if current plan is valid for new type, else reset 
+            const available = this.EVENT_PLANS_LABELS[val] || {};
+            const currentPlan = this.eventForm.get('planType')?.value;
+            if (!available[currentPlan]) {
+                this.eventForm.patchValue({ planType: Object.keys(available)[0] || 'basic' });
+            }
+        });
+    }
 
     // Dashboard Stats
     stats = computed(() => {
@@ -65,6 +102,58 @@ export class AdminComponent {
     allEventsList = computed(() => {
         const events = this.eventService.events();
         return events.sort((a, b) => a.date.localeCompare(b.date));
+    });
+
+    // Search Results
+    searchResults = computed(() => {
+        const query = this.searchQuery().toLowerCase().trim();
+        const events = this.allEventsList();
+
+        if (!query) return [];
+
+        return events.filter(event =>
+            event.title.toLowerCase().includes(query) ||
+            event.location.toLowerCase().includes(query) ||
+            event.type.toLowerCase().includes(query)
+        );
+    });
+
+
+
+    // Stats Interaction State
+    statModalVisible = signal(false);
+    selectedStatType = signal<'total' | 'month' | 'upcoming' | null>(null);
+
+    statModalTitle = computed(() => {
+        const type = this.selectedStatType();
+        switch (type) {
+            case 'total': return 'All Events';
+            case 'month': return 'Events This Month';
+            case 'upcoming': return 'Upcoming Events';
+            default: return '';
+        }
+    });
+
+    statModalEvents = computed(() => {
+        const type = this.selectedStatType();
+        const events = this.allEventsList();
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        switch (type) {
+            case 'total':
+                return events;
+            case 'month':
+                return events.filter(e => {
+                    const d = new Date(e.date);
+                    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+                });
+            case 'upcoming':
+                return events.filter(e => new Date(e.date) >= now);
+            default:
+                return [];
+        }
     });
 
     calendarDays = computed(() => {
@@ -221,5 +310,35 @@ export class AdminComponent {
         const value = parseInt((event.target as HTMLInputElement).value, 10);
         this.completionValue.set(value);
         this.eventForm.patchValue({ completionPercentage: value });
+    }
+
+    // Search Methods
+    openSearch() {
+        this.isSearchVisible.set(true);
+    }
+
+    closeSearch() {
+        this.isSearchVisible.set(false);
+        this.searchQuery.set('');
+    }
+
+    onSearchInput(event: Event) {
+        const input = event.target as HTMLInputElement;
+        this.searchQuery.set(input.value);
+    }
+
+    navigateToManage(eventId: string) {
+        this.router.navigate(['/admin/manage-event', eventId]);
+    }
+
+    // Stats Interaction Methods
+    openStatModal(type: 'total' | 'month' | 'upcoming') {
+        this.selectedStatType.set(type);
+        this.statModalVisible.set(true);
+    }
+
+    closeStatModal() {
+        this.statModalVisible.set(false);
+        this.selectedStatType.set(null);
     }
 }

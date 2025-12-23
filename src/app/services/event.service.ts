@@ -10,8 +10,10 @@ export interface CalendarEvent {
     time: string;
     location: string;
     description?: string;
-    type: 'wedding' | 'corporate' | 'birthday' | 'other';
+    type: string;
     completionPercentage?: number;
+    planType?: string;
+    checklist?: { label: string; completed: boolean }[];
 }
 
 @Injectable({
