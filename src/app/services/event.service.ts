@@ -13,8 +13,33 @@ export interface CalendarEvent {
     type: string;
     completionPercentage?: number;
     planType?: string;
-    checklist?: { label: string; completed: boolean; note?: string }[];
+    budget?: number; // Total budget for the event
+    checklist?: { label: string; completed: boolean; status?: 'todo' | 'in-progress' | 'done'; note?: string; expense?: number }[];
     assignedStaff?: { id: string; name: string; role: string; contact?: string }[];
+    guests?: Guest[];
+    vendors?: Vendor[];
+    status?: 'upcoming' | 'completed';
+}
+
+export interface Guest {
+    id: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    rsvpStatus: 'pending' | 'attending' | 'declined' | 'maybe';
+    group?: 'bride' | 'groom' | 'friend' | 'colleague' | 'other';
+    assignedTable?: string;
+}
+
+export interface Vendor {
+    id: string;
+    name: string;
+    category: string;
+    phone?: string;
+    email?: string;
+    contractAmount?: number;
+    amountPaid?: number;
+    status: 'hired' | 'evaluating' | 'signed' | 'completed';
 }
 
 @Injectable({

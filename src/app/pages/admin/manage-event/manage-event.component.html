@@ -12,67 +12,361 @@
                         </option>
                     </select>
                 </div>
+                <!-- Completion Toggle -->
+                <div class="completion-switch" [class.completed]="event()?.status === 'completed'"
+                    (click)="toggleCompletion()">
+                    <span class="switch-label">{{ event()?.status === 'completed' ? 'Completed' : 'In Progress'
+                        }}</span>
+                    <div class="switch-toggle"></div>
+                </div>
             </div>
             <h1 class="event-title">{{ event()?.title }}</h1>
         </header>
 
-        <div class="progress-section">
-            <div class="progress-header">
-                <span>Progress</span>
-                <span class="percentage">{{ calculateProgress() }}%</span>
-            </div>
-            <div class="progress-bar-bg">
-                <div class="progress-bar-fill" [style.width.%]="calculateProgress()"></div>
-            </div>
+        <div class="tabs-nav">
+            <button class="tab-btn" [class.active]="activeTab() === 'overview'" (click)="activeTab.set('overview')">
+                Overview
+            </button>
+            <button class="tab-btn" [class.active]="activeTab() === 'guests'" (click)="activeTab.set('guests')">
+                Guests ({{ guestStats().total }})
+            </button>
+            <button class="tab-btn" [class.active]="activeTab() === 'vendors'" (click)="activeTab.set('vendors')">
+                Vendors ({{ vendorStats().total }})
+            </button>
         </div>
 
-        <div class="checklist-container">
-            <h3>Event Checklist</h3>
-            <div class="checklist-items" cdkDropList (cdkDropListDropped)="drop($event)">
-                <div class="checklist-item" *ngFor="let item of checklist(); let i = index" cdkDrag
-                    [class.completed]="item.completed">
-                    <div class="drag-handle" cdkDragHandle>
-                        <span class="grip-lines">⋮⋮</span>
+        <!-- OVERVIEW TAB -->
+        <div class="tab-content" *ngIf="activeTab() === 'overview'">
+
+            <div class="progress-section">
+                <div class="progress-header">
+                    <div class="left-group">
+                        <span>Progress</span>
+                        <span class="save-status" [ngClass]="savingStatus()">
+                            {{ savingStatus() === 'saving' ? 'Saving...' : (savingStatus() === 'saved' ? 'Saved' :
+                            'Error')
+                            }}
+                        </span>
                     </div>
-                    <div class="checkbox" (click)="toggleItem(i)">
-                        <span *ngIf="item.completed">✓</span>
-                    </div>
-                    <span class="label">{{ item.label }}</span>
-                    <div class="note-wrapper" (click)="$event.stopPropagation()">
-                        <div class="note-display">
-                            <span class="note-content" [class.scrolling]="item.note">
-                                {{ item.note || 'Add note...' }}
-                            </span>
+                    <span class="percentage">{{ calculateProgress() }}%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" [style.width.%]="calculateProgress()"></div>
+                </div>
+            </div>
+
+            <div class="budget-section">
+                <h3 class="section-title">Budget Management</h3>
+                <div class="budget-card">
+                    <div class="budget-item">
+                        <label>Total Budget</label>
+                        <div class="input-wrapper">
+                            <span class="currency">₹</span>
+                            <input type="number" [(ngModel)]="totalBudget" placeholder="0">
                         </div>
-                        <div class="note-popup">
-                            <textarea [(ngModel)]="item.note" placeholder="Enter full note here..."></textarea>
+                    </div>
+                    <div class="budget-item">
+                        <label>Total Spent</label>
+                        <div class="value">₹ {{ totalSpent() | number }}</div>
+                    </div>
+                    <div class="budget-item">
+                        <label>Remaining</label>
+                        <div class="value" [class.negative]="remainingBudget() < 0">
+                            ₹ {{ remainingBudget() | number }}
+                        </div>
+                    </div>
+                </div>
+                <div class="budget-bar-bg">
+                    <div class="budget-bar-fill" [style.width.%]="(totalSpent() / totalBudget()) * 100"
+                        [class.over-budget]="totalSpent() > totalBudget()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="checklist-container">
+                <div class="checklist-header">
+                    <h3>Event Checklist</h3>
+                    <div class="view-toggles">
+                        <button class="icon-toggle" [class.active]="checklistView() === 'list'"
+                            (click)="checklistView.set('list')" title="List View">
+                            <span class="icon">☰</span>
+                        </button>
+                        <button class="icon-toggle" [class.active]="checklistView() === 'kanban'"
+                            (click)="checklistView.set('kanban')" title="Kanban View">
+                            <span class="icon">◫</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- LIST VIEW -->
+                <div class="checklist-items" *ngIf="checklistView() === 'list'" cdkDropList
+                    (cdkDropListDropped)="drop($event)">
+                    <div class="checklist-item" *ngFor="let item of checklist(); let i = index" cdkDrag
+                        [class.completed]="item.completed">
+                        <div class="drag-handle" cdkDragHandle>
+                            <span class="grip-lines">⋮⋮</span>
+                        </div>
+                        <div class="checkbox" (click)="toggleItem(i)">
+                            <span *ngIf="item.completed">✓</span>
+                        </div>
+                        <span class="label">{{ item.label }}</span>
+                        <div class="note-wrapper" (click)="$event.stopPropagation()">
+                            <div class="note-display">
+                                <span class="note-content" [class.scrolling]="item.note">
+                                    {{ item.note || 'Add note...' }}
+                                </span>
+                            </div>
+                            <div class="note-popup">
+                                <textarea [(ngModel)]="item.note" placeholder="Enter full note here..."></textarea>
+                            </div>
+                        </div>
+                        <div class="expense-wrapper" (click)="$event.stopPropagation()">
+                            <span class="currency">₹</span>
+                            <input type="number" [(ngModel)]="item.expense" placeholder="Cost" class="expense-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KANBAN VIEW -->
+                <div class="kanban-board" *ngIf="checklistView() === 'kanban'" cdkDropListGroup>
+                    <!-- To Do Column -->
+                    <div class="kanban-column todo">
+                        <div class="column-header">
+                            <span class="dot"></span>
+                            <h4>To Do</h4>
+                            <span class="count">{{ todoItems.length }}</span>
+                        </div>
+                        <div class="kanban-list" cdkDropList id="todo" [cdkDropListData]="todoItems"
+                            (cdkDropListDropped)="drop($event)">
+
+                            <div class="kanban-card" *ngFor="let item of todoItems" cdkDrag>
+                                <div class="card-content">
+                                    <span class="label">{{ item.label }}</span>
+                                </div>
+                                <div class="card-footer" *ngIf="item.expense">
+                                    <span class="expense-tag">₹{{ item.expense }}</span>
+                                </div>
+                            </div>
+
+                            <div class="empty-state" *ngIf="todoItems.length === 0">
+                                <span>No tasks</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- In Progress Column -->
+                    <div class="kanban-column in-progress">
+                        <div class="column-header">
+                            <span class="dot"></span>
+                            <h4>In Progress</h4>
+                            <span class="count">{{ inProgressItems.length }}</span>
+                        </div>
+                        <div class="kanban-list" cdkDropList id="in-progress" [cdkDropListData]="inProgressItems"
+                            (cdkDropListDropped)="drop($event)">
+
+                            <div class="kanban-card" *ngFor="let item of inProgressItems" cdkDrag>
+                                <div class="card-content">
+                                    <span class="label">{{ item.label }}</span>
+                                </div>
+                                <div class="card-footer" *ngIf="item.expense">
+                                    <span class="expense-tag">₹{{ item.expense }}</span>
+                                </div>
+                            </div>
+
+                            <div class="empty-state" *ngIf="inProgressItems.length === 0">
+                                <span>Drag tasks here</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Done Column -->
+                    <div class="kanban-column done">
+                        <div class="column-header">
+                            <span class="dot"></span>
+                            <h4>Done</h4>
+                            <span class="count">{{ doneItems.length }}</span>
+                        </div>
+                        <div class="kanban-list" cdkDropList id="done" [cdkDropListData]="doneItems"
+                            (cdkDropListDropped)="drop($event)">
+
+                            <div class="kanban-card done" *ngFor="let item of doneItems" cdkDrag>
+                                <div class="card-content">
+                                    <span class="check-icon">✓</span>
+                                    <span class="label">{{ item.label }}</span>
+                                </div>
+                                <div class="card-footer" *ngIf="item.expense">
+                                    <span class="expense-tag">₹{{ item.expense }}</span>
+                                </div>
+                            </div>
+
+                            <div class="empty-state" *ngIf="doneItems.length === 0">
+                                <span>Drag tasks here</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input class="add-task-input" placeholder="+ Add New Task" [(ngModel)]="newTaskName"
+                    (keydown.enter)="addTask()">
+            </div>
+
+            <div class="staff-container">
+                <h3>Assigned Staff</h3>
+                <div class="staff-list">
+                    <div class="staff-item" *ngFor="let member of staff(); let i = index">
+                        <div class="staff-info">
+                            <span class="staff-name">{{ member.name }}</span>
+                            <span class="staff-role">{{ member.role }}</span>
+                        </div>
+                        <button class="remove-btn" (click)="removeStaff(i)" title="Remove Staff">×</button>
+                    </div>
+                </div>
+
+                <div class="add-staff-form">
+                    <input type="text" placeholder="Name" [(ngModel)]="newStaffName">
+                    <input type="text" placeholder="Role (e.g. Photographer)" [(ngModel)]="newStaffRole"
+                        (keydown.enter)="addStaff()">
+                    <button (click)="addStaff()" [disabled]="!newStaffName || !newStaffRole">+</button>
+                </div>
+            </div>
+
+        </div>
+        <!-- END OVERVIEW TAB -->
+
+        <!-- GUESTS TAB -->
+        <div class="tab-content" *ngIf="activeTab() === 'guests'">
+            <div class="budget-card">
+                <div class="budget-item">
+                    <label>Total Guests</label>
+                    <div class="value">{{ guestStats().total }}</div>
+                </div>
+                <div class="budget-item">
+                    <label>Attending</label>
+                    <div class="value" style="color: #4caf50">{{ guestStats().attending }}</div>
+                </div>
+                <div class="budget-item">
+                    <label>Pending</label>
+                    <div class="value" style="color: #ff9800">{{ guestStats().pending }}</div>
+                </div>
+            </div>
+
+            <div class="add-guest-form">
+                <input type="text" placeholder="Guest Name" [(ngModel)]="newGuestName">
+                <select [(ngModel)]="newGuestGroup">
+                    <option value="friend">Friend</option>
+                    <option value="family">Family</option>
+                    <option value="colleague">Colleague</option>
+                    <option value="other">Other</option>
+                </select>
+                <button (click)="addGuest()" [disabled]="!newGuestName">+</button>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Mobile</th>
+                        <th>RSVP</th>
+                        <th>Table</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let guest of guests(); let i = index">
+                        <td>{{ guest.name }}</td>
+                        <td>
+                            <input type="text" class="cell-input" [(ngModel)]="guest.phone" placeholder="Phone">
+                        </td>
+                        <td>
+                            <select [(ngModel)]="guest.rsvpStatus" class="status-select" [ngClass]="guest.rsvpStatus">
+                                <option value="pending">Pending</option>
+                                <option value="attending">Attending</option>
+                                <option value="declined">Declined</option>
+                                <option value="maybe">Maybe</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="cell-input" [(ngModel)]="guest.assignedTable"
+                                placeholder="Table #">
+                        </td>
+                        <td>
+                            <button class="icon-btn delete" (click)="removeGuest(i)">×</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- END GUESTS TAB -->
+
+        <!-- VENDORS TAB -->
+        <div class="tab-content" *ngIf="activeTab() === 'vendors'">
+            <div class="budget-card">
+                <div class="budget-item">
+                    <label>Total Hired</label>
+                    <div class="value">{{ vendorStats().hired }}</div>
+                </div>
+                <div class="budget-item">
+                    <label>Contract Value</label>
+                    <div class="value" style="color: #4caf50">{{ vendorStats().cost | currency:'INR' }}</div>
+                </div>
+                <div class="budget-item">
+                    <label>Paid</label>
+                    <div class="value" style="color: #777">{{ vendorStats().paid | currency:'INR' }}</div>
+                </div>
+            </div>
+
+            <div class="add-guest-form">
+                <input type="text" placeholder="Vendor Name" [(ngModel)]="newVendorName">
+                <select [(ngModel)]="newVendorCategory">
+                    <option value="Catering">Catering</option>
+                    <option value="Decor">Decor</option>
+                    <option value="Photography">Photography</option>
+                    <option value="Venue">Venue</option>
+                    <option value="Makeup">Makeup</option>
+                    <option value="Music">Music/DJ</option>
+                    <option value="Other">Other</option>
+                </select>
+                <button (click)="addVendor()" [disabled]="!newVendorName">+</button>
+            </div>
+
+            <div class="vendor-list">
+                <div class="vendor-card" *ngFor="let vendor of vendors(); let i = index">
+                    <div class="vendor-header">
+                        <div class="vendor-info">
+                            <span class="category">{{ vendor.category }}</span>
+                            <h4 class="name">{{ vendor.name }}</h4>
+                        </div>
+                        <div class="vendor-status">
+                            <select [(ngModel)]="vendor.status" class="status-select" [ngClass]="vendor.status">
+                                <option value="evaluating">Evaluating</option>
+                                <option value="hired">Hired</option>
+                                <option value="signed">Signed</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                            <button class="icon-btn delete" (click)="removeVendor(i)">×</button>
+                        </div>
+                    </div>
+
+                    <div class="vendor-details">
+                        <div class="detail-row">
+                            <input type="text" placeholder="Phone" [(ngModel)]="vendor.phone">
+                            <input type="text" placeholder="Email" [(ngModel)]="vendor.email">
+                        </div>
+                        <div class="detail-row money-row">
+                            <div class="input-group">
+                                <label>Contract Amount</label>
+                                <input type="number" [(ngModel)]="vendor.contractAmount" placeholder="0">
+                            </div>
+                            <div class="input-group">
+                                <label>Paid Amount</label>
+                                <input type="number" [(ngModel)]="vendor.amountPaid" placeholder="0">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <input class="add-task-input" placeholder="+ Add New Task" [(ngModel)]="newTaskName"
-                (keydown.enter)="addTask()">
         </div>
-
-        <div class="staff-container">
-            <h3>Assigned Staff</h3>
-            <div class="staff-list">
-                <div class="staff-item" *ngFor="let member of staff(); let i = index">
-                    <div class="staff-info">
-                        <span class="staff-name">{{ member.name }}</span>
-                        <span class="staff-role">{{ member.role }}</span>
-                    </div>
-                    <button class="remove-btn" (click)="removeStaff(i)" title="Remove Staff">×</button>
-                </div>
-            </div>
-
-            <div class="add-staff-form">
-                <input type="text" placeholder="Name" [(ngModel)]="newStaffName">
-                <input type="text" placeholder="Role (e.g. Photographer)" [(ngModel)]="newStaffRole"
-                    (keydown.enter)="addStaff()">
-                <button (click)="addStaff()" [disabled]="!newStaffName || !newStaffRole">+</button>
-            </div>
-        </div>
+        <!-- END VENDORS TAB -->
 
         <div class="action-buttons">
             <button class="btn btn-save" (click)="saveProgress()">Save Progress</button>

@@ -1,14 +1,18 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { EventService, CalendarEvent } from '../../../services/event.service';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, switchMap, tap, merge, filter } from 'rxjs';
+import { EventService, CalendarEvent, Guest, Vendor } from '../../../services/event.service';
 
 interface ChecklistItem {
   label: string;
   completed: boolean;
+  status?: 'todo' | 'in-progress' | 'done';
   note?: string;
+  expense?: number;
 }
 
 interface StaffMember {
@@ -34,10 +38,55 @@ export class ManageEventComponent {
   event = signal<CalendarEvent | null>(null);
   checklist = signal<ChecklistItem[]>([]);
   staff = signal<StaffMember[]>([]);
+  guests = signal<Guest[]>([]);
+  vendors = signal<Vendor[]>([]);
+  totalBudget = signal<number>(0);
+  savingStatus = signal<'saved' | 'saving' | 'error'>('saved');
+
+  // Tab State
+  activeTab = signal<'overview' | 'guests' | 'vendors' | 'budget'>('overview');
+
+  // Checklist View Mode
+  checklistView = signal<'list' | 'kanban'>('list');
+
+  totalSpent = computed(() => {
+    const checklistSpent = this.checklist().reduce((sum, item) => sum + (item.expense || 0), 0);
+    const vendorSpent = this.vendors().reduce((sum, v) => sum + (v.amountPaid || 0), 0);
+    // Note: Should we count 'contractAmount' or 'amountPaid' against budget? 
+    // Usually Contract Amount is the committed cost, so let's track Contract Amount for budget usage if available.
+    // But for visual consistency with "Total Spent", maybe paid? 
+    // Let's stick to Expenses + Vendor Paid for now, or maybe Vendor Contract Amount is safer for budget planning.
+    // Let's use Vendor Paid for "Spent" and maybe show "Committed" separately later.
+    return checklistSpent + vendorSpent;
+  });
+
+  remainingBudget = computed(() => {
+    return this.totalBudget() - this.totalSpent();
+  });
+
+  guestStats = computed(() => {
+    const list = this.guests();
+    return {
+      total: list.length,
+      attending: list.filter(g => g.rsvpStatus === 'attending').length,
+      pending: list.filter(g => g.rsvpStatus === 'pending').length,
+      declined: list.filter(g => g.rsvpStatus === 'declined').length
+    };
+  });
+
+  vendorStats = computed(() => {
+    const list = this.vendors();
+    return {
+      total: list.length,
+      hired: list.filter(v => v.status === 'hired' || v.status === 'signed' || v.status === 'completed').length,
+      cost: list.reduce((sum, v) => sum + (v.contractAmount || 0), 0),
+      paid: list.reduce((sum, v) => sum + (v.amountPaid || 0), 0)
+    };
+  });
 
   // Checklists Definitions
   private readonly EVENT_PLANS: any = {
-    'wedding': {
+    wedding: {
       basic: { label: 'Basic Plan', items: [{ label: 'Reception', completed: false }, { label: 'Wedding Day', completed: false }] },
       pro: { label: 'Pro Plan', items: [{ label: 'Pre-Wedding Shoot', completed: false }, { label: 'Reception', completed: false }, { label: 'Wedding Day', completed: false }] },
       premium: {
@@ -154,9 +203,55 @@ export class ManageEventComponent {
   };
 
   constructor() {
+    // Auto-save logic
+    const checklist$ = toObservable(this.checklist);
+    const staff$ = toObservable(this.staff);
+    const budget$ = toObservable(this.totalBudget);
+    const guests$ = toObservable(this.guests);
+    const vendors$ = toObservable(this.vendors);
+
+    merge(checklist$, staff$, budget$, guests$, vendors$)
+      .pipe(
+        filter(() => !!this.event()), // Only save if event is loaded
+        tap(() => this.savingStatus.set('saving')),
+        debounceTime(2000),
+        switchMap(() => this.saveData())
+      )
+      .subscribe({
+        next: () => {
+          this.savingStatus.set('saved');
+        },
+        error: (err) => {
+          console.error('Auto-save error', err);
+          this.savingStatus.set('error');
+        }
+      });
+
     if (this.eventId) {
       this.loadEvent();
     }
+  }
+
+  async saveData() {
+    if (!this.eventId) return;
+
+    const progress = this.calculateProgress();
+    const checklistData = this.checklist();
+    const staffData = this.staff();
+    const guestData = this.guests();
+    const vendorData = this.vendors();
+    const currentPlan = this.event()?.planType || 'basic';
+
+    await this.eventService.updateEvent(this.eventId, {
+      checklist: checklistData,
+      assignedStaff: staffData,
+      completionPercentage: progress,
+      planType: currentPlan,
+      budget: this.totalBudget(),
+      guests: guestData,
+      vendors: vendorData,
+      status: this.event()?.status || 'upcoming'
+    });
   }
 
   loadEvent() {
@@ -167,7 +262,12 @@ export class ManageEventComponent {
       this.event.set(found);
 
       if (found.checklist && found.checklist.length > 0) {
-        this.checklist.set(JSON.parse(JSON.stringify(found.checklist)));
+        // Migration: Ensure status exists
+        const items = found.checklist.map(item => ({
+          ...item,
+          status: item.status || (item.completed ? 'done' : 'todo')
+        }));
+        this.checklist.set(JSON.parse(JSON.stringify(items)));
       } else {
         // Find default plan for this type
         const type = found.type || 'wedding'; // Default to wedding if undefined
@@ -177,6 +277,18 @@ export class ManageEventComponent {
 
       if (found.assignedStaff) {
         this.staff.set(JSON.parse(JSON.stringify(found.assignedStaff)));
+      }
+
+      if (found.budget) {
+        this.totalBudget.set(found.budget);
+      }
+
+      if (found.guests) {
+        this.guests.set(JSON.parse(JSON.stringify(found.guests)));
+      }
+
+      if (found.vendors) {
+        this.vendors.set(JSON.parse(JSON.stringify(found.vendors)));
       }
     }
   }
@@ -193,8 +305,9 @@ export class ManageEventComponent {
     const planData = typePlans[planKey];
     const items = planData ? planData.items : [];
 
-    // Deep copy
-    this.checklist.set(JSON.parse(JSON.stringify(items)));
+    // Deep copy & init status
+    const initializedItems = items.map((i: any) => ({ ...i, status: 'todo' }));
+    this.checklist.set(JSON.parse(JSON.stringify(initializedItems)));
   }
 
   newTaskName = '';
@@ -203,17 +316,57 @@ export class ManageEventComponent {
     if (this.newTaskName && this.newTaskName.trim()) {
       this.checklist.update(items => [
         ...items,
-        { label: this.newTaskName.trim(), completed: false }
+        { label: this.newTaskName.trim(), completed: false, status: 'todo' }
       ]);
       this.newTaskName = ''; // Clear input
     }
   }
 
   drop(event: CdkDragDrop<ChecklistItem[]>) {
+    // If moving within same container (List view or same Kanban column)
+    if (event.previousContainer === event.container) {
+      this.checklist.update(items => {
+        // Logic differs slightly because 'items' in update is the FULL list, 
+        // but event.container.data is just the subset if in Kanban.
+        // For simplicity in list view, it's straightforward.
+        // For Kanban, we rely on the component mapping, but here we update the main source.
+        // Actually, for Kanban reordering within same column, we need to map indices back to the main array.
+        // But let's simplify: List View uses this. Kanban will use a separate handler or we adapt this.
+
+        // If in list view, it's just index swap
+        if (this.checklistView() === 'list') {
+          const newItems = [...items];
+          moveItemInArray(newItems, event.previousIndex, event.currentIndex);
+          return newItems;
+        }
+        return items; // Kanban reorder to be handled specifically if needed, or see below
+      });
+    } else {
+      // Kanban Drag-Drop between columns
+      const item = event.previousContainer.data[event.previousIndex];
+      const newStatus = event.container.id as 'todo' | 'in-progress' | 'done';
+
+      this.updateItemStatus(item, newStatus);
+    }
+  }
+
+  // Kanban Specific Helpers
+  get todoItems() { return this.checklist().filter(i => i.status === 'todo' || (!i.status && !i.completed)); }
+  get inProgressItems() { return this.checklist().filter(i => i.status === 'in-progress'); }
+  get doneItems() { return this.checklist().filter(i => i.status === 'done' || (!i.status && i.completed)); }
+
+  updateItemStatus(item: ChecklistItem, status: 'todo' | 'in-progress' | 'done') {
     this.checklist.update(items => {
-      const newItems = [...items];
-      moveItemInArray(newItems, event.previousIndex, event.currentIndex);
-      return newItems;
+      return items.map(i => {
+        if (i === item || (i.label === item.label && i.note === item.note)) {
+          return {
+            ...i,
+            status: status,
+            completed: status === 'done'
+          };
+        }
+        return i;
+      });
     });
   }
 
@@ -221,6 +374,8 @@ export class ManageEventComponent {
     this.checklist.update(items => {
       const newItems = [...items];
       newItems[index].completed = !newItems[index].completed;
+      // Sync status
+      newItems[index].status = newItems[index].completed ? 'done' : 'todo';
       return newItems;
     });
   }
@@ -232,21 +387,8 @@ export class ManageEventComponent {
     return Math.round((completed / items.length) * 100);
   }
 
-  saveProgress() {
-    if (!this.eventId) return;
-
-    const progress = this.calculateProgress();
-    const checklistData = this.checklist();
-    const staffData = this.staff();
-    const currentPlan = this.event()?.planType || 'basic'; // Use existing, or we might need to track it in a signal if it changes
-
-    this.eventService.updateEvent(this.eventId, {
-      checklist: checklistData,
-      assignedStaff: staffData,
-      completionPercentage: progress,
-      planType: currentPlan
-    });
-
+  async saveProgress() {
+    await this.saveData();
     alert('Progress saved!');
     this.router.navigate(['/admin']);
   }
@@ -271,6 +413,52 @@ export class ManageEventComponent {
 
   removeStaff(index: number) {
     this.staff.update(current => current.filter((_, i) => i !== index));
+  }
+
+  // GUEST MANAGEMENT
+  newGuestName = '';
+  newGuestGroup: Guest['group'] = 'friend';
+
+  addGuest() {
+    if (this.newGuestName.trim()) {
+      this.guests.update(current => [
+        {
+          id: Date.now().toString(),
+          name: this.newGuestName.trim(),
+          rsvpStatus: 'pending',
+          group: this.newGuestGroup
+        },
+        ...current
+      ]);
+      this.newGuestName = '';
+    }
+  }
+
+  removeGuest(index: number) {
+    this.guests.update(current => current.filter((_, i) => i !== index));
+  }
+
+  // VENDOR MANAGEMENT
+  newVendorName = '';
+  newVendorCategory = 'Catering';
+
+  addVendor() {
+    if (this.newVendorName.trim()) {
+      this.vendors.update(current => [
+        {
+          id: Date.now().toString(),
+          name: this.newVendorName.trim(),
+          category: this.newVendorCategory,
+          status: 'evaluating'
+        },
+        ...current
+      ]);
+      this.newVendorName = '';
+    }
+  }
+
+  removeVendor(index: number) {
+    this.vendors.update(current => current.filter((_, i) => i !== index));
   }
 
   changePlan(newType: string) {
@@ -307,5 +495,14 @@ export class ManageEventComponent {
       key: key,
       label: plans[key].label
     }));
+  }
+
+  toggleCompletion() {
+    this.event.update(e => {
+      if (!e) return null;
+      return { ...e, status: e.status === 'completed' ? 'upcoming' : 'completed' };
+    });
+    // Trigger auto-save immediately to persist change
+    this.saveData();
   }
 }

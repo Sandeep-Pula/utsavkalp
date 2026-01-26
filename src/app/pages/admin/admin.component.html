@@ -1,6 +1,14 @@
 <div class="admin-container">
     <header class="admin-header">
         <h1>Event Management</h1>
+        <div class="view-toggle">
+            <button class="toggle-btn" [class.active]="viewMode() === 'dashboard'" (click)="setView('dashboard')">
+                <mat-icon>dashboard</mat-icon> Dashboard
+            </button>
+            <button class="toggle-btn" [class.active]="viewMode() === 'statistics'" (click)="setView('statistics')">
+                <mat-icon>bar_chart</mat-icon> Statistics
+            </button>
+        </div>
         <div class="header-actions">
             <button mat-flat-button color="primary" (click)="openAddEventForm()">
                 <mat-icon>add</mat-icon> Add New Event
@@ -9,7 +17,7 @@
         </div>
     </header>
 
-    <div class="stats-grid">
+    <div class="stats-grid" *ngIf="viewMode() === 'dashboard'">
         <mat-card class="stat-card clickable" (click)="openStatModal('total')">
             <mat-card-content>
                 <div class="stat-icon">📅</div>
@@ -37,9 +45,42 @@
                 </div>
             </mat-card-content>
         </mat-card>
+        <mat-card class="stat-card clickable" (click)="openStatModal('completed')">
+            <mat-card-content>
+                <div class="stat-icon">✅</div>
+                <div class="stat-info">
+                    <h3>{{ stats().completed }}</h3>
+                    <p>Completed</p>
+                </div>
+            </mat-card-content>
+        </mat-card>
     </div>
 
-    <div class="admin-layout">
+    <!-- Analytics Section -->
+    <div class="analytics-grid" *ngIf="viewMode() === 'statistics'">
+        <div class="chart-card">
+            <apx-chart [series]="monthlyEventsChart().series" [chart]="monthlyEventsChart().chart"
+                [xaxis]="monthlyEventsChart().xaxis!" [yaxis]="monthlyEventsChart().yaxis!"
+                [title]="monthlyEventsChart().title!" [plotOptions]="monthlyEventsChart().plotOptions!"
+                [colors]="monthlyEventsChart().colors!" [grid]="monthlyEventsChart().grid!"></apx-chart>
+        </div>
+
+        <div class="chart-card">
+            <apx-chart [series]="eventTypeChart().series" [chart]="eventTypeChart().chart"
+                [labels]="eventTypeChart().labels!" [colors]="eventTypeChart().colors!"
+                [legend]="eventTypeChart().legend!" [responsive]="eventTypeChart().responsive!"
+                [title]="eventTypeChart().title!"></apx-chart>
+        </div>
+
+        <div class="chart-card full-width">
+            <apx-chart [series]="revenueChart().series" [chart]="revenueChart().chart" [xaxis]="revenueChart().xaxis!"
+                [yaxis]="revenueChart().yaxis!" [title]="revenueChart().title!" [colors]="revenueChart().colors!"
+                [stroke]="revenueChart().stroke!" [fill]="revenueChart().fill!" [grid]="revenueChart().grid!"
+                [markers]="revenueChart().markers!"></apx-chart>
+        </div>
+    </div>
+
+    <div class="admin-layout" *ngIf="viewMode() === 'dashboard'">
         <!-- Main Content Area -->
         <div class="main-content">
             <!-- All Events Section -->

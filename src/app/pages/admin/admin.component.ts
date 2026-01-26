@@ -9,6 +9,43 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { EventService, CalendarEvent } from '../../services/event.service';
 import { AuthService } from '../../services/auth.service';
+import { NgApexchartsModule } from "ng-apexcharts";
+import {
+    ApexAxisChartSeries,
+    ApexChart,
+    ApexXAxis,
+    ApexTitleSubtitle,
+    ApexStroke,
+    ApexDataLabels,
+    ApexYAxis,
+    ApexTooltip,
+    ApexGrid,
+    ApexLegend,
+    ApexPlotOptions,
+    ApexNonAxisChartSeries,
+    ApexResponsive,
+    ApexFill,
+    ApexMarkers
+} from "ng-apexcharts";
+
+export type ChartOptions = {
+    series: ApexAxisChartSeries | ApexNonAxisChartSeries;
+    chart: ApexChart;
+    xaxis?: ApexXAxis;
+    yaxis?: ApexYAxis;
+    title?: ApexTitleSubtitle;
+    labels?: string[];
+    colors?: string[];
+    legend?: ApexLegend;
+    plotOptions?: ApexPlotOptions;
+    dataLabels?: ApexDataLabels;
+    tooltip?: ApexTooltip;
+    stroke?: ApexStroke;
+    grid?: ApexGrid;
+    responsive?: ApexResponsive[];
+    fill?: ApexFill;
+    markers?: ApexMarkers;
+};
 
 @Component({
     selector: 'app-admin',
@@ -20,7 +57,8 @@ import { AuthService } from '../../services/auth.service';
         MatButtonModule,
         MatIconModule,
         MatDividerModule,
-        MatProgressBarModule
+        MatProgressBarModule,
+        NgApexchartsModule
     ],
     templateUrl: './admin.component.html',
     styleUrls: ['./admin.component.scss']
@@ -36,6 +74,9 @@ export class AdminComponent {
     selectedEvent = signal<CalendarEvent | null>(null);
     isFormVisible = signal(false);
     completionValue = signal(0);
+
+    // View State
+    viewMode = signal<'dashboard' | 'statistics'>('dashboard');
 
     // Search State
     isSearchVisible = signal(false);
@@ -107,20 +148,210 @@ export class AdminComponent {
         return {
             total: events.length,
             thisMonth: thisMonthCount,
-            upcoming: upcomingCount
+            upcoming: upcomingCount,
+            completed: events.filter(e => e.status === 'completed').length
         };
     });
 
-    // All Events List (Sorted by Date)
-    allEventsList = computed(() => {
+    // Analytics Data (Computed)
+    monthlyEventsChart = computed<ChartOptions>(() => {
         const events = this.eventService.events();
-        return events.sort((a, b) => a.date.localeCompare(b.date));
+        const year = new Date().getFullYear();
+        const monthCounts = Array(12).fill(0);
+
+        events.forEach(e => {
+            const d = new Date(e.date);
+            if (d.getFullYear() === year) {
+                monthCounts[d.getMonth()]++;
+            }
+        });
+
+        return {
+            series: [{
+                name: "Events",
+                data: monthCounts
+            }],
+            chart: {
+                height: 350,
+                type: "bar",
+                fontFamily: 'inherit',
+                toolbar: { show: false }
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    columnWidth: '45%',
+                    distributed: true
+                }
+            },
+            dataLabels: { enabled: false },
+            legend: { show: false },
+            colors: ['#800000', '#D4AF37', '#800000', '#D4AF37', '#800000', '#D4AF37', '#800000', '#D4AF37', '#800000', '#D4AF37', '#800000', '#D4AF37'],
+            grid: {
+                borderColor: '#f1f1f1',
+                strokeDashArray: 4,
+            },
+            xaxis: {
+                categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                labels: {
+                    style: { colors: '#777' }
+                },
+                axisBorder: { show: false },
+                axisTicks: { show: false }
+            },
+            yaxis: {
+                labels: {
+                    style: { colors: '#777' }
+                }
+            },
+            title: {
+                text: `Monthly Events (${year})`,
+                align: 'left',
+                style: {
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    fontFamily: 'Playfair Display, serif',
+                    color: '#800000'
+                }
+            }
+        };
     });
 
-    // Search Results
+    eventTypeChart = computed<ChartOptions>(() => {
+        const events = this.eventService.events();
+        const typeCounts: { [key: string]: number } = {};
+
+        events.forEach(e => {
+            const type = e.type || 'Other';
+            typeCounts[type] = (typeCounts[type] || 0) + 1;
+        });
+
+        const labels = Object.keys(typeCounts).map(t => t.charAt(0).toUpperCase() + t.slice(1).replace('-', ' '));
+        const data = Object.values(typeCounts);
+
+        return {
+            series: data,
+            chart: {
+                type: "donut",
+                height: 350,
+                fontFamily: 'inherit'
+            },
+            labels: labels,
+            colors: ['#800000', '#D4AF37', '#C0C0C0', '#4CAF50', '#2196F3', '#FF9800', '#9C27B0'],
+            legend: {
+                position: 'bottom',
+                fontSize: '14px',
+                fontFamily: 'inherit'
+            },
+            dataLabels: { enabled: false },
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: { width: 200 },
+                    legend: { position: 'bottom' }
+                }
+            }],
+            title: {
+                text: "Events by Category",
+                align: 'left',
+                style: {
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    fontFamily: 'Playfair Display, serif',
+                    color: '#800000'
+                }
+            }
+        };
+    });
+
+    revenueChart = computed<ChartOptions>(() => {
+        const events = this.eventService.events().filter(e => e.status !== 'completed');
+        // Sort by date for line chart
+        const sortedEvents = [...events].sort((a, b) => a.date.localeCompare(b.date)).slice(0, 10); // Last 10 upcoming
+
+        const costs = sortedEvents.map(e => e.budget || 0);
+        const dates = sortedEvents.map(e => {
+            const d = new Date(e.date);
+            return `${d.getDate()}/${d.getMonth() + 1}`;
+        });
+
+        return {
+            series: [{
+                name: "Budget",
+                data: costs
+            }],
+            chart: {
+                height: 350,
+                type: "area",
+                fontFamily: 'inherit',
+                toolbar: { show: false }
+            },
+            dataLabels: { enabled: false },
+            stroke: {
+                curve: 'smooth',
+                width: 2,
+                colors: ['#D4AF37']
+            },
+            fill: {
+                type: "gradient",
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.9,
+                    stops: [0, 90, 100],
+                    colorStops: [
+                        { offset: 0, color: "#D4AF37", opacity: 0.4 },
+                        { offset: 100, color: "#D4AF37", opacity: 0 }
+                    ]
+                }
+            },
+            xaxis: {
+                categories: dates,
+                labels: { style: { colors: '#777' } },
+                tooltip: { enabled: false }
+            },
+            yaxis: {
+                labels: {
+                    formatter: (value) => { return "₹" + (value / 1000) + "k" },
+                    style: { colors: '#777' }
+                }
+            },
+            grid: {
+                borderColor: '#f1f1f1',
+                strokeDashArray: 4,
+            },
+            markers: {
+                size: 5,
+                colors: ['#fff'],
+                strokeColors: '#D4AF37',
+                strokeWidth: 2,
+                hover: { size: 7 }
+            },
+            title: {
+                text: "Budget Overview (Upcoming)",
+                align: 'left',
+                style: {
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    fontFamily: 'Playfair Display, serif',
+                    color: '#800000'
+                }
+            }
+        };
+    });
+
+    // All Events List (Active Only - Sorted by Date)
+    allEventsList = computed(() => {
+        const events = this.eventService.events();
+        return events
+            .filter(e => e.status !== 'completed')
+            .sort((a, b) => a.date.localeCompare(b.date));
+    });
+
+    // Search Results (Global Search)
     searchResults = computed(() => {
         const query = this.searchQuery().toLowerCase().trim();
-        const events = this.allEventsList();
+        const events = this.eventService.events().sort((a, b) => a.date.localeCompare(b.date));
 
         if (!query) return [];
 
@@ -135,7 +366,7 @@ export class AdminComponent {
 
     // Stats Interaction State
     statModalVisible = signal(false);
-    selectedStatType = signal<'total' | 'month' | 'upcoming' | null>(null);
+    selectedStatType = signal<'total' | 'month' | 'upcoming' | 'completed' | null>(null);
 
     statModalTitle = computed(() => {
         const type = this.selectedStatType();
@@ -143,13 +374,14 @@ export class AdminComponent {
             case 'total': return 'All Events';
             case 'month': return 'Events This Month';
             case 'upcoming': return 'Upcoming Events';
+            case 'completed': return 'Completed Events';
             default: return '';
         }
     });
 
     statModalEvents = computed(() => {
         const type = this.selectedStatType();
-        const events = this.allEventsList();
+        const events = this.eventService.events().sort((a, b) => a.date.localeCompare(b.date));
         const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
@@ -163,7 +395,9 @@ export class AdminComponent {
                     return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
                 });
             case 'upcoming':
-                return events.filter(e => new Date(e.date) >= now);
+                return events.filter(e => new Date(e.date) >= now && e.status !== 'completed');
+            case 'completed':
+                return events.filter(e => e.status === 'completed');
             default:
                 return [];
         }
@@ -345,7 +579,7 @@ export class AdminComponent {
     }
 
     // Stats Interaction Methods
-    openStatModal(type: 'total' | 'month' | 'upcoming') {
+    openStatModal(type: 'total' | 'month' | 'upcoming' | 'completed') {
         this.selectedStatType.set(type);
         this.statModalVisible.set(true);
     }
@@ -353,5 +587,9 @@ export class AdminComponent {
     closeStatModal() {
         this.statModalVisible.set(false);
         this.selectedStatType.set(null);
+    }
+
+    setView(mode: 'dashboard' | 'statistics') {
+        this.viewMode.set(mode);
     }
 }
