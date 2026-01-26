@@ -2,33 +2,41 @@
     <header class="admin-header">
         <h1>Event Management</h1>
         <div class="header-actions">
-            <button class="btn btn-primary" (click)="openAddEventForm()">+ Add New Event</button>
-            <button class="btn btn-secondary" (click)="logout()">Logout</button>
+            <button mat-flat-button color="primary" (click)="openAddEventForm()">
+                <mat-icon>add</mat-icon> Add New Event
+            </button>
+            <button mat-stroked-button color="warn" (click)="logout()">Logout</button>
         </div>
     </header>
 
     <div class="stats-grid">
-        <div class="stat-card" (click)="openStatModal('total')">
-            <div class="stat-icon">📅</div>
-            <div class="stat-info">
-                <h3>{{ stats().total }}</h3>
-                <p>Total Events</p>
-            </div>
-        </div>
-        <div class="stat-card" (click)="openStatModal('month')">
-            <div class="stat-icon">🗓️</div>
-            <div class="stat-info">
-                <h3>{{ stats().thisMonth }}</h3>
-                <p>This Month</p>
-            </div>
-        </div>
-        <div class="stat-card" (click)="openStatModal('upcoming')">
-            <div class="stat-icon">🚀</div>
-            <div class="stat-info">
-                <h3>{{ stats().upcoming }}</h3>
-                <p>Upcoming</p>
-            </div>
-        </div>
+        <mat-card class="stat-card clickable" (click)="openStatModal('total')">
+            <mat-card-content>
+                <div class="stat-icon">📅</div>
+                <div class="stat-info">
+                    <h3>{{ stats().total }}</h3>
+                    <p>Total Events</p>
+                </div>
+            </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card clickable" (click)="openStatModal('month')">
+            <mat-card-content>
+                <div class="stat-icon">🗓️</div>
+                <div class="stat-info">
+                    <h3>{{ stats().thisMonth }}</h3>
+                    <p>This Month</p>
+                </div>
+            </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card clickable" (click)="openStatModal('upcoming')">
+            <mat-card-content>
+                <div class="stat-icon">🚀</div>
+                <div class="stat-info">
+                    <h3>{{ stats().upcoming }}</h3>
+                    <p>Upcoming</p>
+                </div>
+            </mat-card-content>
+        </mat-card>
     </div>
 
     <div class="admin-layout">
@@ -38,8 +46,8 @@
             <div class="upcoming-section">
                 <div class="section-header">
                     <h2>All Events</h2>
-                    <button class="icon-btn" (click)="openSearch()" title="Search Events">
-                        🔍
+                    <button mat-icon-button (click)="openSearch()" title="Search Events">
+                        <mat-icon>search</mat-icon>
                     </button>
                 </div>
                 <div class="upcoming-list events-list">
@@ -52,9 +60,10 @@
                             <h4>{{ event.title }}</h4>
                             <p>{{ event.time }} • {{ event.location }}</p>
                             <span class="event-type-pill" [class]="event.type">{{ event.type | titlecase }}</span>
-                            <button class="btn btn-manage"
-                                style="font-size: 0.8rem; padding: 0.3rem 0.8rem; margin-top: 0.5rem;"
-                                (click)="$event.stopPropagation(); navigateToManage(event.id)">Manage Event</button>
+                            <button mat-stroked-button color="primary" style="font-size: 0.8rem; margin-top: 0.5rem;"
+                                (click)="$event.stopPropagation(); navigateToManage(event.id)">
+                                Manage Event
+                            </button>
                         </div>
                         <div class="completion-badge" *ngIf="event.completionPercentage !== undefined">
                             {{ event.completionPercentage }}%
@@ -287,8 +296,7 @@
                             <h4>{{ event.title }}</h4>
                             <p>{{ event.time }} • {{ event.location }}</p>
                             <span class="event-type-pill" [class]="event.type">{{ event.type | titlecase }}</span>
-                            <button class="btn btn-manage"
-                                style="font-size: 0.8rem; padding: 0.3rem 0.8rem; margin-top: 0.5rem;"
+                            <button mat-stroked-button color="primary" style="font-size: 0.8rem; margin-top: 0.5rem;"
                                 (click)="$event.stopPropagation(); navigateToManage(event.id)">Manage Event</button>
                         </div>
                         <div class="arrow">→</div>
@@ -324,8 +332,7 @@
                         <h4>{{ event.title }}</h4>
                         <p>{{ event.time }} • {{ event.location }}</p>
                         <span class="event-type-pill" [class]="event.type">{{ event.type | titlecase }}</span>
-                        <button class="btn btn-manage"
-                            style="font-size: 0.8rem; padding: 0.3rem 0.8rem; margin-top: 0.5rem;"
+                        <button mat-stroked-button color="primary" style="font-size: 0.8rem; margin-top: 0.5rem;"
                             (click)="$event.stopPropagation(); navigateToManage(event.id)">Manage Event</button>
                     </div>
                     <div class="arrow">→</div>

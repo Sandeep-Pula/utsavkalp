@@ -1,17 +1,27 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService, CalendarEvent } from '../../../services/event.service';
 
 interface ChecklistItem {
   label: string;
   completed: boolean;
+  note?: string;
+}
+
+interface StaffMember {
+  id: string;
+  name: string;
+  role: string;
+  contact?: string;
 }
 
 @Component({
   selector: 'app-manage-event',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, DragDropModule],
   templateUrl: './manage-event.component.html',
   styleUrls: ['./manage-event.component.scss']
 })
@@ -23,6 +33,7 @@ export class ManageEventComponent {
   eventId = this.route.snapshot.paramMap.get('id');
   event = signal<CalendarEvent | null>(null);
   checklist = signal<ChecklistItem[]>([]);
+  staff = signal<StaffMember[]>([]);
 
   // Checklists Definitions
   private readonly EVENT_PLANS: any = {
@@ -163,6 +174,10 @@ export class ManageEventComponent {
         const defaultPlan = this.EVENT_PLANS[type] ? Object.keys(this.EVENT_PLANS[type])[0] : 'basic';
         this.initializeChecklist(found.planType || defaultPlan);
       }
+
+      if (found.assignedStaff) {
+        this.staff.set(JSON.parse(JSON.stringify(found.assignedStaff)));
+      }
     }
   }
 
@@ -180,6 +195,26 @@ export class ManageEventComponent {
 
     // Deep copy
     this.checklist.set(JSON.parse(JSON.stringify(items)));
+  }
+
+  newTaskName = '';
+
+  addTask() {
+    if (this.newTaskName && this.newTaskName.trim()) {
+      this.checklist.update(items => [
+        ...items,
+        { label: this.newTaskName.trim(), completed: false }
+      ]);
+      this.newTaskName = ''; // Clear input
+    }
+  }
+
+  drop(event: CdkDragDrop<ChecklistItem[]>) {
+    this.checklist.update(items => {
+      const newItems = [...items];
+      moveItemInArray(newItems, event.previousIndex, event.currentIndex);
+      return newItems;
+    });
   }
 
   toggleItem(index: number) {
@@ -202,16 +237,40 @@ export class ManageEventComponent {
 
     const progress = this.calculateProgress();
     const checklistData = this.checklist();
+    const staffData = this.staff();
     const currentPlan = this.event()?.planType || 'basic'; // Use existing, or we might need to track it in a signal if it changes
 
     this.eventService.updateEvent(this.eventId, {
       checklist: checklistData,
+      assignedStaff: staffData,
       completionPercentage: progress,
       planType: currentPlan
     });
 
     alert('Progress saved!');
     this.router.navigate(['/admin']);
+  }
+
+  newStaffName = '';
+  newStaffRole = '';
+
+  addStaff() {
+    if (this.newStaffName.trim() && this.newStaffRole.trim()) {
+      this.staff.update(current => [
+        ...current,
+        {
+          id: Date.now().toString(),
+          name: this.newStaffName.trim(),
+          role: this.newStaffRole.trim()
+        }
+      ]);
+      this.newStaffName = '';
+      this.newStaffRole = '';
+    }
+  }
+
+  removeStaff(index: number) {
+    this.staff.update(current => current.filter((_, i) => i !== index));
   }
 
   changePlan(newType: string) {

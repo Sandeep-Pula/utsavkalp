@@ -13,7 +13,8 @@ export interface CalendarEvent {
     type: string;
     completionPercentage?: number;
     planType?: string;
-    checklist?: { label: string; completed: boolean }[];
+    checklist?: { label: string; completed: boolean; note?: string }[];
+    assignedStaff?: { id: string; name: string; role: string; contact?: string }[];
 }
 
 @Injectable({

@@ -28,14 +28,49 @@
 
         <div class="checklist-container">
             <h3>Event Checklist</h3>
-            <div class="checklist-items">
-                <div class="checklist-item" *ngFor="let item of checklist(); let i = index" (click)="toggleItem(i)"
+            <div class="checklist-items" cdkDropList (cdkDropListDropped)="drop($event)">
+                <div class="checklist-item" *ngFor="let item of checklist(); let i = index" cdkDrag
                     [class.completed]="item.completed">
-                    <div class="checkbox">
+                    <div class="drag-handle" cdkDragHandle>
+                        <span class="grip-lines">⋮⋮</span>
+                    </div>
+                    <div class="checkbox" (click)="toggleItem(i)">
                         <span *ngIf="item.completed">✓</span>
                     </div>
                     <span class="label">{{ item.label }}</span>
+                    <div class="note-wrapper" (click)="$event.stopPropagation()">
+                        <div class="note-display">
+                            <span class="note-content" [class.scrolling]="item.note">
+                                {{ item.note || 'Add note...' }}
+                            </span>
+                        </div>
+                        <div class="note-popup">
+                            <textarea [(ngModel)]="item.note" placeholder="Enter full note here..."></textarea>
+                        </div>
+                    </div>
                 </div>
+            </div>
+            <input class="add-task-input" placeholder="+ Add New Task" [(ngModel)]="newTaskName"
+                (keydown.enter)="addTask()">
+        </div>
+
+        <div class="staff-container">
+            <h3>Assigned Staff</h3>
+            <div class="staff-list">
+                <div class="staff-item" *ngFor="let member of staff(); let i = index">
+                    <div class="staff-info">
+                        <span class="staff-name">{{ member.name }}</span>
+                        <span class="staff-role">{{ member.role }}</span>
+                    </div>
+                    <button class="remove-btn" (click)="removeStaff(i)" title="Remove Staff">×</button>
+                </div>
+            </div>
+
+            <div class="add-staff-form">
+                <input type="text" placeholder="Name" [(ngModel)]="newStaffName">
+                <input type="text" placeholder="Role (e.g. Photographer)" [(ngModel)]="newStaffRole"
+                    (keydown.enter)="addStaff()">
+                <button (click)="addStaff()" [disabled]="!newStaffName || !newStaffRole">+</button>
             </div>
         </div>
 

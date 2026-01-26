@@ -2,13 +2,26 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { EventService, CalendarEvent } from '../../services/event.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-admin',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatDividerModule,
+        MatProgressBarModule
+    ],
     templateUrl: './admin.component.html',
     styleUrls: ['./admin.component.scss']
 })
